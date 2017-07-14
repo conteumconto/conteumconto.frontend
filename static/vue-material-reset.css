@@ -1,0 +1,17 @@
+.md-theme-default a:not(.md-button) {
+    color: #fff;
+}
+.md-theme-default a:not(.md-button):hover {
+    color: inherit;
+}
+
+a:not(.md-button):not(.md-bottom-bar-item):hover {
+    text-decoration: none;
+}
+ul:not(.md-list)>li+li {
+    margin: 0
+}
+body.md-theme-default {
+    height: 100%;
+    background-color: #e1e1e1
+}

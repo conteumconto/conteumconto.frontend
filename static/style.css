@@ -1,0 +1,15 @@
+body {
+    height: 100%;
+    font-family: 'Arvo', serif;
+    font-weight: normal;
+    color: #444;
+    font-size: 30px;
+    letter-spacing: .6px;
+    margin: 1rem;
+}
+
+#placeholder:empty:before {
+    content: 'Clique e Digite';
+    color: #333;
+    opacity: .2;
+}
