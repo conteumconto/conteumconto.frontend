@@ -76,7 +76,7 @@ export default {
           
           <div class="form-group">
             <h2 class="form-text">Título do seu livro</h2>
-            <input class="input-text" required type="text" v-model="title" minlength="2" placeholder="Qual o nome para sua aventura?">
+            <input class="input-text" required type="text" v-model="title" minlength="2" placeholder="Qual o nome da sua aventura?">
           </div>
           <div class="form-group">
             <h2 class="form-text">Resumo</h2>

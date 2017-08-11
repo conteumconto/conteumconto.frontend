@@ -203,7 +203,7 @@ export default {
 @import './../../assets/bases.sass'
 
 .image-content
-  @extend .bg-top-nav
+  @extend .bg-topnav
   position: fixed
   bottom: 0
   left: 0

@@ -19,8 +19,8 @@ export default {
 @import './assets/bases.sass';
 
 #app
-  background-color: $gray-background;
   height: 100%;
+  background-color: $gray-background;
 
 .modal-enter
   opacity: 0
@@ -32,5 +32,4 @@ export default {
 .modal-leave-active .modal-container
   -webkit-transform: scale(1.1)
   transform: scale(1.1)
-
 </style>

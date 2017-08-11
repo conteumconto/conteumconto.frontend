@@ -66,11 +66,11 @@
 
   </div>
 </template>
-<style lang="sass">
+<style scoped lang="sass">
 @import './../../assets/bases.sass'
 
 .topnav
-  @extend .bg-top-nav
+  @extend .bg-topnav
   height: 80px
   display: flex
   justify-content: space-between
@@ -121,7 +121,7 @@
   color: $green-dark
 
 .nav-options
-  @extend .bg-top-nav
+  @extend .bg-topnav
   box-shadow: $shadow_1
   display: flex
   justify-content: center

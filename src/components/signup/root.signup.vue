@@ -2,8 +2,8 @@
   <div id="signup">
     <loginTopnav :page="'signup'"></loginTopnav>
     <div class="user-options">
-      <button class="btn btn-student" @click="setUser('student')">Sou Estudante</button>
-      <button class="btn btn-teacher" @click="setUser('teacher')">Sou Professor</button>
+      <button class="btn btn-student" @click="setUser('student')" v-bind:class="{selected:user=='student'}">Sou Estudante</button>
+      <button class="btn btn-teacher" @click="setUser('teacher')" v-bind:class="{selected:user=='teacher'}">Sou Professor</button>
     </div>
     <div v-if="this.user == 'student'">
         <studentSignup></studentSignup>
@@ -60,17 +60,14 @@
       width: 300px;
       height: 4rem;
       border-radius: 30px;
-    
+      background-color: white;
+      color: black;
+
     .btn:hover
-      background-color: $blue-dark;
+      background-color: $blue-base;
       color: white;
 
-    .btn-student
-      background-color: white;
-      color: black;
-
-    .btn-teacher
-      background-color: white;
-      color: black;
-
+    .selected
+      background-color: $blue-dark;
+      color: white;
 </style>
