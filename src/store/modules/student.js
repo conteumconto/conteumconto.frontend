@@ -33,7 +33,6 @@ const actions = {
       if (error.body === 'Unauthorized') {
         Auth.logout()
       }
-      console.log(error)
     })
   }
 }

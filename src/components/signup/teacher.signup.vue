@@ -16,11 +16,12 @@
         </div>
         <div class="form-group">
           <div class="form-text">CPF</div>
-          <input required type="text" v-model="teacher.cpf" minlength="3" name="cpf" placeholder="Digite seu CPF">
+          <input required type="text" v-model="teacher.cpf" minlength="3" name="cpf" placeholder="Ex.: 123.456.789-10" title="Entre com o CPF no formato XXX.XXX.XXX-XX">
         </div>
         <div class="form-group">
           <div class="form-text">TELEFONE</div>
-          <input required type="text" v-model="teacher.phone" minlength="3" name="telefone" placeholder="Digite seu telefone">
+          <!--<masked-input v-model="teacher.phone" mask="\+\1 (111) 1111-11" placeholder="Phone" />-->
+          <input required v-model="teacher.phone" name="telefone" placeholder="Ex.: (01)23456-7890" title="Entre com o telefone no formato (XX)XXXXX-XXXX">
         </div>
         <div class="form-group">
           <div class="form-text">EMAIL</div>
