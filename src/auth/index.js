@@ -1,28 +1,25 @@
 import globalConfig from '../services/GlobalConfigs'
+import common from '../services/CommonServices'
 
 const API_URL = globalConfig.getApiURL()
 
 export default {
-
-  user: {
-    authenticated: false
-  },
 
   login (context, creds) {
     const LOGIN_URL = API_URL + '/auth/'
 
     context.$http.post(LOGIN_URL, creds).then(({body}) => {
       // Checks if user's token is present
-      if (typeof body.token !== 'undefined') {
+      if (!common.isEmpty(body.token)) {
         let userType = body.person.__t
         // Stores student's data and token in the localStorage
         localStorage.setItem('token', body.token)
-        localStorage.setItem(userType, JSON.stringify(body.person))
-        this.user.authenticated = true
-        context.$store.commit('LOAD_STUDENT_DATA', body.person)
+        // Checks the actor type
         if (userType === 'Student') {
+          context.$store.commit('LOAD_STUDENT_DATA', body.person)
           context.$router.push('/')
         } else if (userType === 'Teacher') {
+          context.$store.commit('LOAD_TEACHER_DATA', body.person)
           context.$router.push('/painel')
         }
       } else {
@@ -51,23 +48,12 @@ export default {
       } else if (err.body.error === 'Duplicate login') {
         context.openSnackBar('O Login escolhido já está em Uso!')
       }
-      console.log(err)
     })
   },
   logout () {
     // Clears the localStorage, removing student's data and token
-    localStorage.removeItem('token')
-    localStorage.removeItem('Student')
-    this.user.authenticated = false
+    localStorage.clear()
     location.href = '#/entrar'
-  },
-  checkAuth () {
-    var jwt = localStorage.getItem('token')
-    if (jwt) {
-      this.user.authenticated = true
-    } else {
-      this.user.authenticated = false
-    }
   },
   // Returns the object to be passed as a header for authenticated requests
   getAuthHeader () {
