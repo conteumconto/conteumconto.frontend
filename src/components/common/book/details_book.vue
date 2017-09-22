@@ -100,7 +100,6 @@ export default {
                 </md-table-body>
               </md-table>
               <a class="btn-noBg sucess" :href="this.book.newChapterUrl" > Escrever </a>
-              <button class="btn-noBg danger"  @click="removeBook" > Apagar Livro </button>
             </div>
 
             <div class="modal-item">
@@ -133,6 +132,7 @@ export default {
                   </md-chips>
                 </div>
                 <button class="btn-noBg sucess" @click="saveChanges" > Salvar </button>
+                <button class="btn-noBg danger"  @click="removeBook" > Apagar Livro </button>
             </div>
 
             <div class="modal-item">
@@ -140,7 +140,11 @@ export default {
                 <div class="image">
                   <img src='../../../assets/img/kids1.jpg'>
                 </div>
-                <button class="btn-noBg default" > Trocar Capa do Livro </button>
+                
+                <md-input-container>
+                  <label >Trocar Imagem</label>
+                  <md-file v-model="onlyImages" accept="image/*"></md-file>
+                </md-input-container>
               </div>
             </div>
           </div>
