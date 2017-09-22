@@ -11,7 +11,8 @@ export default {
   props: ['home'],
   data () {
     return {
-      launchNewBook: false
+      launchNewBook: false,
+      search: ''
     }
   },
   created: function () {
@@ -21,6 +22,17 @@ export default {
     close_new_book: function () {
       this.launchNewBook = false
       this.$store.dispatch('loadBookDataFromApi', this.$store.getters.dataStudent.login)
+    }
+  },
+  computed: {
+    list () {
+      if (this.search) {
+        return this.$store.getters.studentBooks.filter((book) => {
+          return book.title.match(this.search)
+        })
+      } else {
+        return this.$store.getters.studentBooks
+      }
     }
   }
 }
@@ -36,10 +48,10 @@ export default {
   <div v-if="this.$store.getters.haveBooks" class="book-list">
     <h1 v-if="!home" class="title-large title-down">Meus Livros</h1>
     <div v-if="!home" class="book_search">
-      <input class="search" type="text" placeholder="Busque pelo nome do livro">
+      <input class="search" type="text" placeholder="Busque pelo nome do livro" v-model="search">
       <button class="btn btn-green" @click="launchNewBook = true" > Novo Livro </button>
     </div>
-    <CardBook v-for='book in this.$store.getters.studentBooks' :book="book"></CardBook>
+    <CardBook v-for='book in this.list' :book="book"></CardBook>
   </div>
 </div>
 </template>
