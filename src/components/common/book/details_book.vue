@@ -1,4 +1,9 @@
 <script>
+import globalConfig from '../../../services/GlobalConfigs'
+import Auth from '../../../auth/index'
+
+const API_URL = globalConfig.getApiURL()
+
 export default {
   name: 'details_book',
   data () {
@@ -14,6 +19,52 @@ export default {
     this.title = this.book.title
     this.summary = this.book.summary
     this.tags = this.book.tags
+  },
+  methods: {
+    saveChanges: function () {
+      let self = this
+      let newBook = {
+        title: this.title,
+        summary: this.summary,
+        tags: this.tags
+      }
+      this.$http.put(API_URL + '/book/id/' + self.book._id + '/', newBook,
+        {headers: Auth.getAuthHeader()}
+      ).then(({body}) => {
+        if (body !== null) {
+          // reload the store with new book
+          this.$store.dispatch('loadBookDataFromApi', self.$store.getters.dataStudent.login)
+          this.$emit('close')
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+    },
+    removeBook: function () {
+      this.$emit('close')
+      let self = this
+      this.$swal({
+        title: 'Você tem certeza?',
+        text: 'Este livro deixará de existir após a confirmação!',
+        type: 'warning',
+        showCloseButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir este livro',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+      }).then(() => {
+        self.$http.delete(API_URL + '/book/id/' + self.book._id + '/',
+          {headers: Auth.getAuthHeader()}
+        ).then(({body}) => {
+          if (body !== null) {
+            // reload the store with new book
+            self.$store.dispatch('loadBookDataFromApi', self.$store.getters.dataStudent.login)
+          }
+        }).catch((err) => {
+          console.log(err)
+        })
+      })
+    }
   }
 }
 </script>
@@ -29,44 +80,75 @@ export default {
         <i class="fa fa-close fa-3x" aria-hidden="true"  @click="$emit('close')" ></i>
       </div>
 
-      <div class="body-modal">
-      
-        <div class="modal-item">
-          
-          <md-table v-once>
-            <md-table-header>
-              <md-table-row>
-                <md-table-head>Capítulos</md-table-head>
-              </md-table-row>
-            </md-table-header>
+      <md-tabs md-centered>
+        <md-tab md-icon="list">
 
-            <md-table-body>
-              <md-table-row v-for="chapter in this.book.chapters">
-                <md-table-cell>{{chapter.title}}</md-table-cell>
-                <md-table-cell><a class="edit" :href="chapter.url"> <md-icon>edit</md-icon></a></md-table-cell>
-              </md-table-row>
-            </md-table-body>
-          </md-table>
-         <a class="btn-noBg sucess" :href="this.book.newChapterUrl" > Escrever </a>
-         <button class="btn-noBg warning" @click="start" > Editar Livro </button>
-         <button class="btn-noBg danger" > Apagar Livro </button>
-        </div>
+          <div class="body-modal">        
+            <div class="modal-item">   
+              <md-table v-once>
+                <md-table-header>
+                  <md-table-row>
+                    <md-table-head>Capítulos</md-table-head>
+                  </md-table-row>
+                </md-table-header>
 
-        <div class="modal-item">
-          
-          <div class="new-image">
-            <div class="image">
-              <img src='../../../assets/img/kids1.jpg'>
+                <md-table-body>
+                  <md-table-row v-for="chapter in this.book.chapters">
+                    <md-table-cell>{{chapter.title}}</md-table-cell>
+                    <md-table-cell><a class="edit" :href="chapter.url"> <md-icon>edit</md-icon></a></md-table-cell>
+                  </md-table-row>
+                </md-table-body>
+              </md-table>
+              <a class="btn-noBg sucess" :href="this.book.newChapterUrl" > Escrever </a>
+              <button class="btn-noBg danger"  @click="removeBook" > Apagar Livro </button>
             </div>
-            <button class="btn-noBg default" > Trocar Capa do Livro </button>
+
+            <div class="modal-item">
+              <div class="new-image">
+                <div class="image">
+                  <img src='../../../assets/img/kids1.jpg'>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </md-tab>
+
+        <md-tab md-icon="settings">
+
+          <div class="body-modal">
+            <div class="modal-item">
+               <div class="form-group">
+                  <h2 class="form-text">Título do seu livro</h2>
+                  <input class="input-text" required type="text" v-model="title" minlength="2" placeholder="Qual o nome para sua aventura?">
+                </div>
+                <div class="form-group">
+                  <h2 class="form-text">Resumo</h2>
+                  <textarea class="input-text"  rows="7" v-model="summary"   placeholder="O que a sua história tem de legal?"></textarea>
+                </div>
+                <div class="form-group">
+                  <h2 class="form-text">TAGS/Categorias</h2>
+                  <md-chips v-model="tags" md-input-placeholder="Digite e aperte enter">
+                    <template scope="chip">{{ chip.value }}</template>
+                  </md-chips>
+                </div>
+                <button class="btn-noBg sucess" @click="saveChanges" > Salvar </button>
+            </div>
+
+            <div class="modal-item">
+              <div class="new-image">
+                <div class="image">
+                  <img src='../../../assets/img/kids1.jpg'>
+                </div>
+                <button class="btn-noBg default" > Trocar Capa do Livro </button>
+              </div>
+            </div>
           </div>
 
-        </div>
-
-      </div>
+        </md-tab>
+      </md-tabs>
 
     </div>
-
   </div>
 </transition>
 </div>
@@ -98,7 +180,7 @@ export default {
 .modal-wrapper
   background: #fff
   width: 75%
-  height: 600px
+  height: 700px
 
 .header-modal
   display: flex
