@@ -132,3 +132,42 @@ a
   padding: 1.5rem 2rem 1.5rem 2rem
   margin: 0
   box-shadow: none
+
+
+.btn-noBg
+  flex: 1
+  padding: 1.5em
+  font:
+    family: $title_alter_font
+    size: 1em
+    weight: bold
+  text-transform: uppercase
+  cursor: pointer
+
+.btn-noBg.disable
+  color: #B4B2B2 !important
+
+.btn-noBg.default
+  color: $blue_base !important
+  transition: all .3s ease
+.btn-noBg.default:hover
+  color: $blue_dark !important
+
+.btn-noBg.sucess
+  color: $green !important
+  transition: all .3s ease
+.btn-noBg.sucess:hover
+  color: $green_dark !important
+
+.btn-noBg.warning
+  color: $orange_base !important
+  transition: all .3s ease
+.btn-noBg.warning:hover
+  color: $orange_dark !important
+
+.btn-noBg.danger
+  color: $red !important
+  transition: all .3s ease
+.btn-noBg.danger:hover
+  color: $red_dark !important
+  
