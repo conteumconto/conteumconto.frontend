@@ -64,6 +64,30 @@ export default {
           console.log(err)
         })
       })
+    },
+    removeChapter: function (chapter) {
+      this.$emit('close')
+      let self = this
+      this.$swal({
+        title: 'Você tem certeza?',
+        text: 'Este capítulo deixará de existir após a confirmação!',
+        type: 'warning',
+        showCloseButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir este capítulo',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+      }).then(() => {
+        self.$http.delete(API_URL + '/chapter/id/' + chapter.id + '/',
+          {headers: {Authorization: localStorage.getItem('token')}}
+        ).then(({body}) => {
+          self.$nextTick(function () {
+            self.$store.dispatch('loadBookDataFromApi', self.$store.getters.dataStudent.login)
+          })
+        }).catch((err) => {
+          console.log(err)
+        })
+      })
     }
   }
 }
@@ -96,6 +120,8 @@ export default {
                   <md-table-row v-for="chapter in this.book.chapters">
                     <md-table-cell>{{chapter.title}}</md-table-cell>
                     <md-table-cell><a class="edit" :href="chapter.url"> <md-icon>edit</md-icon></a></md-table-cell>
+                    <md-table-cell><button class="edit" @click="removeChapter(chapter)"> <md-icon>delete</md-icon> </button></md-table-cell>
+
                   </md-table-row>
                 </md-table-body>
               </md-table>
@@ -164,6 +190,7 @@ export default {
 .edit
   color: $blue_base !important
   transition: all .3s ease
+  cursor: pointer
 .edit:hover
   color: $blue_dark !important
 
