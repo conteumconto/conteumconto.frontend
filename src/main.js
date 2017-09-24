@@ -15,6 +15,7 @@ import Signup from './components/signup/root.signup'
 import BookCase from './components/bookcase/main.vue'
 import EditProfile from './components/editProfile/editProfile'
 import Login from './components/login/login'
+import Forgot from './components/login/forgot'
 import Write from './components/write/write.vue'
 import Auth from './auth/index'
 
@@ -34,6 +35,7 @@ const routes = [
   { path: '/editProfile', alias: '/editarPerfil', component: EditProfile, meta: {requiresAuth: true} },
   { path: '/signup', alias: '/cadastrar', component: Signup },
   { path: '/login', alias: '/entrar', name: 'login', component: Login },
+  { path: '/forgot', alias: '/recuperar', name: 'recuperar', component: Forgot },
   { path: '/write', alias: '/escrever', component: Write, meta: {requiresAuth: true} },
   { path: '/write/new/:book_id/', alias: '/escrever/novo/:book_id/', component: Write, meta: {requiresAuth: true} },
   { path: '/write/new/:chapter_id/', alias: '/escrever/editar/:chapter_id/', component: Write, meta: {requiresAuth: true} }
