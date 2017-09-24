@@ -73,7 +73,7 @@
       </div>
       <div class="login-footer">
         <a class="form-text" href="#/cadastrar">cadastre-se</a> <br />
-        <a class="form-text" href="#/">Esqueceu sua senha?</a>
+        <a class="form-text" href="#/recuperar">Esqueceu sua senha?</a>
       </div>
     </div>
     
