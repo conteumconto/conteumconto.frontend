@@ -27,7 +27,8 @@ export default {
         }
       } else {
         // Returns a login error message to show to the user
-        context.openSnackBar('Login ou Senha Incorretos')
+        // TODO: DESACOPLAR O SNACK BAR EO ALGORITMO DE LOGIN
+        context.openSnackBar('Usuário ou Senha Incorretos')
         context.isDanger = true
       }
     }, error => {
