@@ -98,7 +98,6 @@
 
   #teacher-signup
     height: 100%;
-    background-color: $blue-lightier;
     position: relative;
   
   .container
