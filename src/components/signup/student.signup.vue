@@ -88,7 +88,6 @@
 
   #student-signup
     position: relative;
-    background-color: $blue-lightier;
   
   .container
     margin: auto;
