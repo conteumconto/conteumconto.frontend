@@ -43,7 +43,7 @@
       </div>
 
       <div class="login-footer">
-        <a class="form-text" href="#/entrar">Login</a> <br />
+        <a class="form-text" href="#/entrar">Entrar</a> <br />
       </div>
     </div>
     
@@ -92,13 +92,17 @@
     flex-flow: column wrap
 
   .user-options
-    flex: .6 1
+    margin-top: 1rem
+    margin-bottom: 2rem
+    flex: .5 1
     display: flex
     justify-content: center
     align-items: center
 
   .login-footer
     text-align: center
+    margin-top: 2rem
+    margin-bottom: 2rem
 
   .container
     margin: 5em auto;
