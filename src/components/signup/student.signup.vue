@@ -3,7 +3,7 @@
     <div class="container">
       <form @submit="onSubmit" onsubmit="return false">
         <div class="form-group">
-          <div style="margin-top: 4em" class="form-text">NOME</div>
+          <div class="form-text">NOME</div>
           <input required type="text" v-model="student.first_name" minlength="3" maxlength="100" name="nome" placeholder="Digite seu nome">
         </div>
         <div class="form-group">
@@ -88,13 +88,9 @@
 
   #student-signup
     position: relative;
-    background-color: $blue-lightier;
   
   .container
-    margin: auto;
     width: 35em;
-    border-radius: 15px;
-    border: 1px solid white;
     background-color: white;
   
   form

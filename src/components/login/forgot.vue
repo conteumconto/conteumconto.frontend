@@ -3,7 +3,7 @@
   import auth from '../../auth'
 
   export default {
-    name: 'login',
+    name: 'forgot',
     data () {
       return {
         credentials: {
@@ -47,23 +47,14 @@
     </div>
 
     <div class="login">
-      <h1 class="title-welcome">Login </h1>
+      <h1 class="title-welcome">Recuperar Senha </h1>
       <div class="container">
         <form @submit="onSubmit" onsubmit="return false">
           <div class="form-group">
-            <div style="margin-top: 4em" class="form-text"> Usuário </div>
-            <input required type="login" v-model="credentials.login" v-bind:class="{danger:isDanger}" name="login" placeholder="Digite seu usuário">
+            <div class="form-text">EMAIL</div>
+            <input required type="email"  name="email" placeholder="Digite seu email">
           </div>
-          <div class="form-group">
-            <div class="form-text"> SENHA </div>
-            <div class="password-input-wrapper">
-              <input required type="password" v-if="hidePassword" v-model="credentials.password" minlength="5" v-bind:class="{danger:isDanger}" name="senha" placeholder="Digite sua senha">
-              <input required type="text" v-else v-model="credentials.password" minlength="5" v-bind:class="{danger:isDanger}" name="senha" placeholder="Digite sua senha">
-              <i class="fa fa-eye toggle-password" aria-hidden="true" v-if="hidePassword" @click="hidePassword = !hidePassword"></i>
-              <i class="fa fa-eye-slash toggle-password" aria-hidden="true" v-else @click="hidePassword = !hidePassword"></i>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-green"> ENTRAR </button>
+          <button type="submit" class="btn btn-green"> Enviar </button>
           <md-snackbar :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
             <span>{{situationText}}</span>
             <md-button class="md-accent" md-theme="light-blue" @click.native="$refs.snackbar.close()">OK</md-button>
@@ -73,7 +64,7 @@
       </div>
       <div class="login-footer">
         <a class="form-text" href="#/cadastrar">cadastre-se</a> <br />
-        <a class="form-text" href="#/recuperar">Esqueceu sua senha?</a>
+        <a class="form-text" href="#/entrar">Entre</a>
       </div>
     </div>
     

@@ -3,7 +3,7 @@
     <div class="container">
       <form @submit="onSubmit" onsubmit="return false">
         <div class="form-group">
-          <div style="margin-top: 4em" class="form-text">NOME</div>
+          <div class="form-text">NOME</div>
           <input required type="text" v-model="teacher.first_name" minlength="3" maxlength="100" name="nome" placeholder="Digite seu nome">
         </div>
         <div class="form-group">
@@ -98,7 +98,6 @@
 
   #teacher-signup
     height: 100%;
-    background-color: $blue-lightier;
     position: relative;
   
   .container
