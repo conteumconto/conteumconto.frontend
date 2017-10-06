@@ -1,4 +1,9 @@
 <template>
+<transition
+  name="bounce"
+  enter-active-class="bounceInRight"
+  leave-active-class="bounceOutRight"
+>
   <div id="teacher-signup">
     <div class="container">
       <form @submit="onSubmit" onsubmit="return false">
@@ -46,6 +51,7 @@
       </form>
     </div>
   </div>
+</transition>
 </template>
 
 <script>
@@ -99,16 +105,13 @@
   #teacher-signup
     height: 100%;
     position: relative;
+    margin: 1.2rem
   
   .container
     margin: auto;
-    width: 35em;
-    border-radius: 15px;
-    border: 1px solid white;
     background-color: white;
   
   form
-    height: 100%;
     margin: auto;  
     text-align: center;
   
