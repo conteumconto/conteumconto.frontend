@@ -23,25 +23,28 @@
 </script>
 <template>
   <div class="login-wrapper">
+
     <div class="logo">
-      <a href="#/entrar"><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
-      <h1> Escrever Aprender Ensinar</h1>
+      <div class='center-trick'>  
+        <a href="#/entrar"><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
+        <h1> Escrever Aprender Ensinar</h1>
+      </div>
     </div>
 
     <div class="login">
+      
       <h1 class="title-welcome">Cadastre-se </h1>
       <div  class="user-options">
         <button class="btn-noBg warning" @click="setUser('student')">Sou Estudante</button>
         <button class="btn-noBg sucess" @click="setUser('teacher')">Sou Professor</button>
       </div>
-      
+
       <div v-if="this.user == 'student'">
-        <studentSignup></studentSignup>
+          <studentSignup></studentSignup>
       </div>
       <div v-else-if="this.user == 'teacher'">
-        <teacherSignup></teacherSignup>
+          <teacherSignup></teacherSignup>
       </div>
-
       <div class="login-footer">
         <a class="form-text" href="#/entrar">Entrar</a> <br />
       </div>
@@ -59,10 +62,8 @@
   .login-wrapper
     display: flex
     flex-flow: row wrap
-
-  .logo, .login
-    flex: 1 1
-  
+    background: #fff
+    
   .logo
     background: blue
     background: url('./../../assets/img/login_bg.jpg') no-repeat center center fixed
@@ -71,10 +72,13 @@
     -moz-background-size: cover
     background-size: cover
     -o-background-size: cover
-    display: flex
-    justify-content: center
-    align-items: center
-    flex-flow: column wrap
+    flex: 1 1 
+    height: 100hv
+  
+  .center-trick
+    position: fixed
+    left: 20%
+    top: 50%
 
   .logo h1
     font-family: $title_font
@@ -82,19 +86,17 @@
     font-size: 1.2rem
   
   .login
-    background: #fff
     display: flex
     justify-content: center
     align-items: center
     display: flex
-    justify-content: center
+    justify-content: flex-start
     align-items: center
     flex-flow: column wrap
 
   .user-options
     margin-top: 1rem
     margin-bottom: 2rem
-    flex: .5 1
     display: flex
     justify-content: center
     align-items: center
