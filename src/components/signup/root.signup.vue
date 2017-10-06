@@ -63,7 +63,10 @@
     display: flex
     flex-flow: row wrap
     background: #fff
-    
+  
+  .logo, .login
+    flex: 1 1
+
   .logo
     background: blue
     background: url('./../../assets/img/login_bg.jpg') no-repeat center center fixed
@@ -72,13 +75,14 @@
     -moz-background-size: cover
     background-size: cover
     -o-background-size: cover
-    flex: 1 1 
-    height: 100hv
   
   .center-trick
     position: fixed
-    left: 20%
-    top: 50%
+    left: 27%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center
+
 
   .logo h1
     font-family: $title_font
