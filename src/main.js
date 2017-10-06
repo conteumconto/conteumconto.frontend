@@ -7,6 +7,7 @@ import VueResource from 'vue-resource'
 
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
+import 'vue2-animate/dist/vue2-animate.min.css'
 import VueSweetAlert from 'vue-sweetalert'
 
 import Home from './components/home/main'
