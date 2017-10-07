@@ -1,14 +1,8 @@
 <script>
-// import globalConfig from '../../../services/GlobalConfigs'
-// import Auth from '../../../auth/index'
-
-// const API_URL = globalConfig.getApiURL()
-
 export default {
   name: 'card_class',
   data () {
     return {
-      newClassGroupComponent: false,
       edit: false
     }
   },
@@ -18,30 +12,6 @@ export default {
 <template>
   <div class="classgroup-wrapper">
     <div class="classgroup-content">
-      <div class="classgroup-share">
-        <div class="classgroup-code content">
-          #{{this.classGroup.code}}
-        </div>
-        <div class="share-icons">
-          <i class="fa fa-share-alt fa-3x" aria-hidden="true"></i>
-          <i class="fa fa-clipboard fa-3x" aria-hidden="true"></i>
-        </div>
-      </div>
-      <div class="classgroup-info">
-        <div class="classgroup-up">
-          <div class="classgroup-title"><i class="fa fa-users" aria-hidden="true"></i> {{this.classGroup.name}} </div>
-          <div class="classgroup-title"><i class="fa fa-home" aria-hidden="true"></i> {{this.classGroup.school}} </div>
-          <div class="classgroup-title"><i class="fa fa-hashtag" aria-hidden="true"></i> {{this.classGroup.theme}} </div>
-        </div>
-      </div>
-      <div class="classgroup-members">
-          <div>
-            <i class="fa fa-users fa-2x" aria-hidden="true"></i>
-            <span class="classgroup-code content">{{this.classGroup.capacity}}</span>
-          </div>
-          <div class="classgroup-title more-details"><i class="fa fa-caret-right fa-2x" aria-hidden="true"></i></div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
