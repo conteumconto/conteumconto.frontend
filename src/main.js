@@ -43,7 +43,8 @@ const routes = [
 ]
 // Create the router instance and pass the `routes` option
 const router = new VueRouter({
-  routes
+  routes,
+  mode: 'history'
 })
 
 router.beforeEach((to, from, next) => {
