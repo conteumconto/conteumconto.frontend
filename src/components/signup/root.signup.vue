@@ -46,7 +46,7 @@
           <teacherSignup></teacherSignup>
       </div>
       <div class="login-footer">
-        <a class="form-text" href="#/entrar">Entrar</a> <br />
+        <a class="form-text" href="entrar">Entrar</a> <br />
       </div>
     </div>
     
