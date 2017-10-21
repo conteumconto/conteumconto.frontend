@@ -5,7 +5,11 @@ export default {
   },
   */
   // Returns the test api url
+  // getApiURL () {
+  //   return 'https://cuc-api-desenvolvimento.herokuapp.com'
+  // }
+  // Returns the local dev api url
   getApiURL () {
-    return 'https://cuc-api-desenvolvimento.herokuapp.com'
+    return 'http://localhost:3000'
   }
 }
