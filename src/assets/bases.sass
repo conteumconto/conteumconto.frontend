@@ -96,9 +96,10 @@ a
   color: #A3A3A3
   cursor: pointer
   transition: all .3s ease
-  outline: 0;
+  outline: 0
+
 .btn:hover 
-  text-decoration: underline
+  text-decoration: none
 
 .btn-inverse
   box-shadow: none
@@ -124,15 +125,24 @@ a
   background: $green
   color: #fff
   transition: all .3s ease
+
 .btn-green:hover
   background: $green_dark
+
+.btn-green-outline
+  border: 1px solid $green
+  color: $green
+  transition: all .3s ease
+  
+.btn-green-outline:hover:not([disabled])
+  background: $green_dark
+  color: #fff
 
 .btn-large
   font-size: 2rem
   padding: 1.5rem 2rem 1.5rem 2rem
   margin: 0
   box-shadow: none
-
 
 .btn-noBg
   margin: 1rem

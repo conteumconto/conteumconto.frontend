@@ -8,4 +8,8 @@ export default {
   getApiURL () {
     return 'https://cuc-api-desenvolvimento.herokuapp.com'
   }
+  // Returns the local dev api url
+  // getApiURL () {
+  //   return 'http://localhost:3000'
+  // }
 }

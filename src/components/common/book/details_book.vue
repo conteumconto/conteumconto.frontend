@@ -1,5 +1,6 @@
 <script>
 import globalConfig from '../../../services/GlobalConfigs'
+import common from '../../../services/CommonServices'
 import Auth from '../../../auth/index'
 
 const API_URL = globalConfig.getApiURL()
@@ -11,14 +12,21 @@ export default {
       title: '',
       summary: '',
       tags: [],
-      edit: false
+      edit: false,
+      photo: {
+        name: 'Foto Padrão',
+        url: './static/img/kids1.jpg'
+      }
     }
   },
   props: ['book'],
-  mounted: function () {
+  mounted () {
     this.title = this.book.title
     this.summary = this.book.summary
     this.tags = this.book.tags
+  },
+  created () {
+    if (!common.isEmpty(this.book.photo.url)) this.photo = this.book.photo
   },
   methods: {
     saveChanges: function () {
@@ -26,7 +34,8 @@ export default {
       let newBook = {
         title: this.title,
         summary: this.summary,
-        tags: this.tags
+        tags: this.tags,
+        photo: this.photo
       }
       this.$http.put(API_URL + '/book/id/' + self.book._id + '/', newBook,
         {headers: Auth.getAuthHeader()}
@@ -117,7 +126,7 @@ export default {
                 </md-table-header>
 
                 <md-table-body>
-                  <md-table-row v-for="chapter in this.book.chapters">
+                  <md-table-row v-for="chapter in this.book.chapters" :key="chapter._id">
                     <md-table-cell>{{chapter.title}}</md-table-cell>
                     <md-table-cell><a class="edit" :href="chapter.url"> <md-icon>edit</md-icon></a></md-table-cell>
                     <md-table-cell><button class="edit" @click="removeChapter(chapter)"> <md-icon>delete</md-icon> </button></md-table-cell>
@@ -131,7 +140,7 @@ export default {
             <div class="modal-item">
               <div class="new-image">
                 <div class="image">
-                  <img src='../../../assets/img/kids1.jpg'>
+                  <img :src="this.photo.url" :alt="this.photo.name">
                 </div>
               </div>
             </div>
@@ -164,13 +173,9 @@ export default {
             <div class="modal-item">
               <div class="new-image">
                 <div class="image">
-                  <img src='../../../assets/img/kids1.jpg'>
+                  <img :src="this.photo.url" :alt="this.photo.name">
                 </div>
                 
-                <md-input-container>
-                  <label >Trocar Imagem</label>
-                  <md-file v-model="onlyImages" accept="image/*"></md-file>
-                </md-input-container>
               </div>
             </div>
           </div>
@@ -211,7 +216,7 @@ export default {
 .modal-wrapper
   background: #fff
   width: 75%
-  height: 700px
+  height: auto
 
 .header-modal
   display: flex
@@ -233,7 +238,7 @@ export default {
 
 .modal-item
   flex: 1
-  margin: 1rem 2.5rem
+  margin: 1rem 1.5rem
 
 .form-group
   margin: 1rem
@@ -267,7 +272,7 @@ export default {
 
 .image
   width: 300px
-  height: 250px
+  height: 300px
   border-radius: 5px/5px
   background: #ecf0f1
   color: #bfd3da

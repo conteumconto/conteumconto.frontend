@@ -51,7 +51,7 @@ export default {
       <input class="search" type="text" placeholder="Busque pelo nome do livro" v-model="search">
       <button class="btn btn-green" @click="launchNewBook = true" > Novo Livro </button>
     </div>
-    <CardBook v-for='book in this.list' :book="book"></CardBook>
+    <CardBook v-for='book in this.list' :book="book" :key="book._id"></CardBook>
   </div>
 </div>
 </template>
@@ -65,7 +65,6 @@ export default {
   display: flex
   flex-direction: column
   align-items: center
-
 
 .search
   font:
