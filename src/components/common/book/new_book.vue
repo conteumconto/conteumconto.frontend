@@ -1,9 +1,14 @@
 <script>
 import globalConfig from '../../../services/GlobalConfigs'
 import common from '../../../services/CommonServices'
+import photoUpload from '../../../services/PhotoUploadServices'
 import Auth from '../../../auth/index'
 
 const API_URL = globalConfig.getApiURL()
+const STATUS_INITIAL = 0
+const STATUS_SAVING = 1
+const STATUS_SUCCESS = 2
+const STATUS_FAILED = 3
 
 export default {
   name: 'new_book',
@@ -17,24 +22,33 @@ export default {
         horizontal: 'right',
         duration: 5000
       },
-      situationText: ''
+      situationText: '',
+      photo: {
+        name: 'Foto Padrão',
+        url: './static/img/kids1.jpg'
+      },
+      uploadStatus: STATUS_INITIAL
     }
   },
   computed: {
-    student_data: function () {
+    student_data () {
       return this.$store.getters.dataStudent
+    },
+    isSaving () {
+      return this.uploadStatus === STATUS_SAVING
     }
   },
   created: function () {
     this.$store.dispatch('loadStudentDataFromApi', this.student_data.login)
   },
   methods: {
-    save: function () {
+    save () {
       let newBook = {
         _students: this.student_data._id,
         title: this.title,
         summary: this.summary,
-        tags: this.tags
+        tags: this.tags,
+        photo: this.photo
       }
       if (common.isEmpty(newBook.title)) {
         this.openSnackBar('Escreva um título para seu livro!')
@@ -51,6 +65,35 @@ export default {
           console.log(err)
         })
       }
+    },
+    newPhoto (fieldName, fileList) {
+      // handle new photo
+      const formData = new FormData()
+      // if no photo was sent, return and don't save
+      if (!fileList.length) return
+      // append the files to FormData, splitting spaces
+      Array
+        .from(Array(fileList.length).keys())
+        .map(x => {
+          formData.append(fieldName, fileList[x], fileList[x].name.replace(/\s/g, ''))
+        })
+
+      // save it
+      this.savePhoto(formData)
+    },
+    savePhoto (formData) {
+      // upload data to the server
+      this.uploadStatus = STATUS_SAVING
+
+      photoUpload.uploadFirebase(formData)
+        .then(photos => {
+          this.photo = photos[0]
+          this.uploadStatus = STATUS_SUCCESS
+        })
+        .catch(err => {
+          this.uploadError = err.response
+          this.uploadStatus = STATUS_FAILED
+        })
     },
     openSnackBar (text) {
       this.situationText = text
@@ -93,13 +136,18 @@ export default {
         <div class="modal-item">
           <div class="new-image">
             <div class="image">
-              <img src='../../../assets/img/kids1.jpg'>
+              <img v-show="!isSaving" :src="photo.url">
+              <md-spinner v-show="isSaving" md-indeterminate></md-spinner>
             </div>
-            <button class="btn btn-green" @click="save" > Salvar </button>
+            <div>
+              <label for="bookNewPhoto" :disabled="isSaving" class="btn btn-green-outline">Inserir Foto</label>
+              <input type="file" id="bookNewPhoto" name="photos" :disabled="isSaving" @change="newPhoto($event.target.name, $event.target.files);" accept="image/*" class="input-file">
+            </div>
             <md-snackbar class="snackbar" :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
               <span>{{situationText}}</span>
               <md-button class="md-accent" md-theme="light-blue" @click.native="$refs.snackbar.close()">OK</md-button>
             </md-snackbar>
+            <button class="btn btn-green" @click="save" > Salvar </button>
           </div>
         </div>
       </div>
@@ -129,7 +177,7 @@ export default {
 .modal-wrapper
   background: #fff
   width: 75%
-  height: 600px
+  height: auto
 
 .header-modal
   display: flex
@@ -151,7 +199,7 @@ export default {
 
 .modal-item
   flex: 1
-  margin: 1rem 2.5rem
+  margin: 1rem 1.5rem
 
 .form-group
   margin: 1rem
@@ -183,11 +231,11 @@ export default {
   width: 100%
 
 .image
-  width: 300px
-  height: 250px
+  width: auto
+  height: auto
   border-radius: 5px/5px
   background: #ecf0f1
-  color: #bfd3da
+  color: #fff
   display: flex
   justify-content: center
   align-items: center
@@ -208,5 +256,8 @@ export default {
 
 .snackbar
   z-index: 10000
+
+.input-file
+  display: none
 
 </style>

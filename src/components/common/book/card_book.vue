@@ -10,14 +10,21 @@ export default {
   data () {
     return {
       newChapterUrl: '',
-      details: false
+      details: false,
+      photo: {
+        name: 'Foto Padrão',
+        url: './static/img/kids1.jpg'
+      }
     }
   },
   props: ['book'],
   computed: {
-    hide: function () {
+    hide () {
       return (common.isEmptyArray(this.book.chapters))
     }
+  },
+  created () {
+    if (!common.isEmpty(this.book.photo.url)) this.photo = this.book.photo
   }
 }
 </script>
@@ -36,7 +43,7 @@ export default {
       </div>
       <div class='book-r'>
         <div class="image">
-          <img src='../../../assets/img/kids1.jpg'>
+          <img :src="this.photo.url" :alt="this.photo.name">
         </div>
       </div>
     </div>
@@ -88,8 +95,8 @@ export default {
   margin: 0
 
   img
-    width: 100%
-    height: 100%
+    width: auto
+    height: auto
 
 
 </style>

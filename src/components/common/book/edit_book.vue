@@ -108,7 +108,7 @@ export default {
 .modal-wrapper
   background: #fff
   width: 75%
-  height: 600px
+  height: auto
 
 .header-modal
   display: flex
@@ -122,7 +122,6 @@ export default {
   padding: 0
   cursor: pointer
 
-
 .body-modal
   display: flex
   justify-content: space-between
@@ -130,7 +129,7 @@ export default {
 
 .modal-item
   flex: 1
-  margin: 1rem 2.5rem
+  margin: 1rem 1.5rem
 
 .form-group
   margin: 1rem
@@ -161,10 +160,9 @@ export default {
   font-family: $title_alter_font
   width: 100%
 
-
 .image
   width: 300px
-  height: 250px
+  height: 300px
   border-radius: 5px/5px
   background: #ecf0f1
   color: #bfd3da
