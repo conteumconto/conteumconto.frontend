@@ -1,10 +1,10 @@
 <template>
 	<div id="loginTopnav">
 		<ul>
-			<li class="logo-icon"><a href="/#/entrar"></a></li>
+			<li class="logo-icon"><a href="/entrar"></a></li>
 			<li style="float: right">
-				<button v-if="this.page == 'signup'" type="button" onClick="location.href='#/entrar'"class="btn btn-red">Entrar</button>
-				<button v-else type="button" onClick="location.href='#/cadastrar'"class="btn btn-green">Cadastrar</button>
+				<button v-if="this.page == 'signup'" type="button" onClick="location.href='/entrar'" class="btn btn-red">Entrar</button>
+				<button v-else type="button" onClick="location.href='/cadastrar'" class="btn btn-green">Cadastrar</button>
 			</li>
 		
 		</ul>
@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  name: 'loginTopnav',
+  name: 'loginTopNav',
   props: ['page']
 }
 </script>

@@ -1,6 +1,6 @@
 <script>
-  import loginTopnav from '../common/loginTopnav'
-  import auth from '../../auth'
+  import loginTopnav from '../common/login.topnav'
+  import Auth from '../../services/auth.service'
 
   export default {
     name: 'forgot',
@@ -30,7 +30,7 @@
           login: this.credentials.login,
           password: this.credentials.password
         }
-        auth.login(this, credentials)
+        Auth.login(this, credentials)
       },
       openSnackBar (text) {
         this.situationText = text
