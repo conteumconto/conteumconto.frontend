@@ -1,62 +1,61 @@
 <template>
-<transition
-  name="bounce"
-  enter-active-class="bounceInRight"
-  leave-active-class="bounceOutRight"
->
-  <div id="teacher-signup">
-    <div class="container">
-      <form @submit="onSubmit" onsubmit="return false">
-        <div class="form-group">
-          <div class="form-text">NOME</div>
-          <input required type="text" v-model="teacher.first_name" minlength="3" maxlength="100" name="nome" placeholder="Digite seu nome">
-        </div>
-        <div class="form-group">
-          <div class="form-text">SOBRENOME</div>
-          <input required type="text" v-model="teacher.last_name" minlength="3" name="sobreNome" placeholder="Digite seu sobrenome">
-        </div>  
-        <div class="form-group">
-          <div class="form-text">IDADE</div>
-          <input required type="number" v-model="teacher.birth_day" name="idade" min="18" max="100" placeholder="Qual a sua idade?">
-        </div>
-        <div class="form-group">
-          <div class="form-text">CPF</div>
-          <input required type="text" v-model="teacher.cpf" minlength="3" name="cpf" placeholder="Digite seu CPF">
-        </div>
-        <div class="form-group">
-          <div class="form-text">TELEFONE</div>
-          <input required type="text" v-model="teacher.phone" minlength="3" name="telefone" placeholder="Digite seu telefone">
-        </div>
-        <div class="form-group">
-          <div class="form-text">EMAIL</div>
-          <input required type="email" v-model="teacher.email" name="email" placeholder="Digite seu email">
-        </div>
-        <div class="form-group">
-          <div class="form-text">LOGIN</div>
-          <input required type="login" v-model="teacher.login" name="login" placeholder="Crie um login para a sua conta">
-        </div>
-        <div class="form-group">
-          <div class="form-text">SENHA</div>
-          <div class="password-input-wrapper">
-            <input required type="password" v-if="hidePassword" v-model="teacher.password" minlength="5" name="senha" placeholder="Crie uma senha">
-            <input required type="text" v-else v-model="teacher.password" minlength="5" name="senha" placeholder="Crie uma senha">
-            <i class="fa fa-eye toggle-password" aria-hidden="true" v-if="hidePassword" @click="hidePassword = !hidePassword"></i>
-            <i class="fa fa-eye-slash toggle-password" aria-hidden="true" v-else @click="hidePassword = !hidePassword"></i>
+  <transition
+    name="bounce"
+    enter-active-class="bounceInRight"
+    leave-active-class="bounceOutRight">
+    <div id="teacher-signup">
+      <div class="container">
+        <form @submit="onSubmit" onsubmit="return false">
+          <div class="form-group">
+            <div class="form-text">NOME</div>
+            <input required type="text" v-model="teacher.first_name" minlength="3" maxlength="100" name="nome" placeholder="Digite seu nome">
           </div>
-        </div>
-        <button type="submit" class="btn btn-green"> CADASTRAR </button>
-        <md-snackbar :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
-          <span>{{situationText}}</span>
-        </md-snackbar>
-      </form>
+          <div class="form-group">
+            <div class="form-text">SOBRENOME</div>
+            <input required type="text" v-model="teacher.last_name" minlength="3" name="sobreNome" placeholder="Digite seu sobrenome">
+          </div>  
+          <div class="form-group">
+            <div class="form-text">IDADE</div>
+            <input required type="number" v-model="teacher.age" name="idade" min="18" max="100" placeholder="Qual a sua idade?">
+          </div>
+          <div class="form-group">
+            <div class="form-text">CPF</div>
+            <input required type="text" v-model="teacher.cpf" minlength="3" name="cpf" placeholder="Digite seu CPF">
+          </div>
+          <div class="form-group">
+            <div class="form-text">TELEFONE</div>
+            <input required type="text" v-model="teacher.phone" minlength="3" name="telefone" placeholder="Digite seu telefone">
+          </div>
+          <div class="form-group">
+            <div class="form-text">EMAIL</div>
+            <input required type="email" v-model="teacher.email" name="email" placeholder="Digite seu email">
+          </div>
+          <div class="form-group">
+            <div class="form-text">LOGIN</div>
+            <input required type="login" v-model="teacher.login" name="login" placeholder="Crie um login para a sua conta">
+          </div>
+          <div class="form-group">
+            <div class="form-text">SENHA</div>
+            <div class="password-input-wrapper">
+              <input required type="password" v-if="hidePassword" v-model="teacher.password" minlength="5" name="senha" placeholder="Crie uma senha">
+              <input required type="text" v-else v-model="teacher.password" minlength="5" name="senha" placeholder="Crie uma senha">
+              <i class="fa fa-eye toggle-password" aria-hidden="true" v-if="hidePassword" @click="hidePassword = !hidePassword"></i>
+              <i class="fa fa-eye-slash toggle-password" aria-hidden="true" v-else @click="hidePassword = !hidePassword"></i>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-green"> CADASTRAR </button>
+          <md-snackbar :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
+            <span>{{situationText}}</span>
+          </md-snackbar>
+        </form>
+      </div>
     </div>
-  </div>
-</transition>
+  </transition>
 </template>
 
 <script>
-  import loginTopnav from '../common/loginTopnav'
-  import auth from '../../auth'
+  import loginTopnav from '../common/login.topnav'
+  import Auth from '../../services/auth.service'
 
   export default {
     name: 'teacher-signup',
@@ -65,7 +64,7 @@
         teacher: {
           first_name: '',
           last_name: '',
-          birth_day: '',
+          age: '',
           cpf: '',
           phone: '',
           email: '',
@@ -86,7 +85,25 @@
     },
     methods: {
       onSubmit () {
-        auth.signup(this, this.teacher, '/teacher')
+        let signup = Auth.signup(this, this.teacher, 'teacher')
+        let login = Auth.login(this, {login: this.teacher.login, password: this.teacher.password})
+
+        Promise.all([signup, login])
+          .then(response => {
+            this.openSnackBar('Cadastro realizado com sucesso!')
+            // After signup, login freshly registered user
+            const user = response[1]
+            this.$store.commit('LOAD_TEACHER_DATA', user)
+            this.$router.push({name: 'home-professor'})
+          })
+          .catch(err => {
+            console.error(err.response)
+            // @todo: isolate snackbar
+            if (err.response.data === 'duplicate_email') this.openSnackBar('Esse e-mail já foi cadastrado, escolha outro.')
+            else if (err.response.data === 'duplicate_login') this.openSnackBar('O login escolhido já está em uso, escolha outro.')
+            else if (err.response.data === 'invalid_login_password') this.$router.push({name: login})
+            else this.openSnackBar('Não foi possível cadastrar uma conta no momento. Tente novamente mais tarde!')
+          })
       },
       openSnackBar (text) {
         this.situationText = text
