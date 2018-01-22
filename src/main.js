@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App'
 import VueRouter from 'vue-router'
-import store from './store/index'
+import store from './store/main.store'
 import Vuex from 'vuex'
 import VueResource from 'vue-resource'
 
@@ -10,15 +10,9 @@ import 'vue-material/dist/vue-material.css'
 import 'vue2-animate/dist/vue2-animate.min.css'
 import VueSweetAlert from 'vue-sweetalert'
 
-import Home from './components/home/main'
-import Painel from './components/home/painel'
-import Signup from './components/signup/root.signup'
-import BookCase from './components/bookcase/main.vue'
-import EditProfile from './components/editProfile/editProfile'
-import Login from './components/login/login'
-import Forgot from './components/login/forgot'
-import Write from './components/write/write.vue'
-import Auth from './auth/index'
+import { router } from './services/router.service'
+import Auth from './services/auth.service'
+import common from './services/common.service'
 
 Vue.use(VueMaterial)
 Vue.use(VueResource)
@@ -26,32 +20,15 @@ Vue.use(VueRouter)
 Vue.use(Vuex)
 Vue.use(VueSweetAlert)
 
-Vue.http.headers.common['Authorization'] = localStorage.getItem('token')
 Auth.checkAuth()
 
-const routes = [
-  {path: '/home', alias: '/', component: Home, meta: {requiresAuth: true}},
-  {path: '/painel', alias: '/painelDoProfessor', component: Painel, meta: {requiresAuth: true}},
-  {path: '/books', alias: '/meusLivros', component: BookCase, meta: {requiresAuth: true}},
-  { path: '/editProfile', alias: '/editarPerfil', component: EditProfile, meta: {requiresAuth: true} },
-  { path: '/signup', alias: '/cadastrar', component: Signup },
-  { path: '/login', alias: '/entrar', name: 'login', component: Login },
-  { path: '/forgot', alias: '/recuperar', name: 'recuperar', component: Forgot },
-  { path: '/write', alias: '/escrever', component: Write, meta: {requiresAuth: true} },
-  { path: '/write/new/:book_id/', alias: '/escrever/novo/:book_id/', component: Write, meta: {requiresAuth: true} },
-  { path: '/write/new/:chapter_id/', alias: '/escrever/editar/:chapter_id/', component: Write, meta: {requiresAuth: true} }
-]
-// Create the router instance and pass the `routes` option
-const router = new VueRouter({
-  routes,
-  mode: 'history'
-})
-
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth) {
+  if (common.isEmptyArray(to.matched)) next({name: 'login'})
+  else if (to.meta.requiresAuth) {
     if (localStorage.getItem('token') == null || localStorage.getItem('student') === 'undefined') {
       next({name: 'login'})
       Auth.logout()
+      this.$router.push({name: 'login'})
     } else {
       next()
     }
