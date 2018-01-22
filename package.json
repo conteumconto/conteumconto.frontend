@@ -2,7 +2,7 @@
   "name": "conteumconto",
   "version": "1.0.2",
   "description": "Conte um Conto Portal",
-  "author": "lucasfranco <llucasrgt@gmail.com>",
+  "author": "conteumconto <conteumconto.ellp@gmail.com>",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
@@ -13,6 +13,7 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "axios": "^0.17.1",
     "firebase": "^4.6.0",
     "q": "^1.5.1",
     "vue": "^2.1.0",

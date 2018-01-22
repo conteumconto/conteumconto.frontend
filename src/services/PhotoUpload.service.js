@@ -10,18 +10,17 @@ firebase.initializeApp({
 
 const storage = firebase.storage()
 
-export default class PhotoUpload {
+export default class PhotoUploadService {
 
   // TODO: Progress spinner
   static uploadFirebase (formData) {
     const photos = formData.getAll('photos')
     return new Promise((resolve, reject) => {
-      let promises = PhotoUpload.iterateAndUploadPhotos(photos)
+      let promises = PhotoUploadService.iterateAndUploadPhotos(photos)
       $q.all(promises)
-        .then((uploadTasksSnapshots) => resolve(PhotoUpload.convertResultPhotos(uploadTasksSnapshots)))
-        .catch((error) => reject(error))
-    }
-    )
+        .then(uploadTasksSnapshots => resolve(PhotoUploadService.convertResultPhotos(uploadTasksSnapshots)))
+        .catch(err => reject(err))
+    })
   }
 
   static iterateAndUploadPhotos (photos) {
@@ -47,7 +46,7 @@ export default class PhotoUpload {
     let photos = []
     uploadTasksSnapshots.forEach(function (uts) {
       photos.push({
-        name: PhotoUpload.splitExtension(uts.metadata.name),
+        name: PhotoUploadService.splitExtension(uts.metadata.name),
         url: uts.downloadURL
       })
     }, this)

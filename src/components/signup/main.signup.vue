@@ -1,3 +1,31 @@
+<template>
+  <div class="login-wrapper">
+    <div class="logo">
+      <div class='center-trick'>  
+        <a href="/entrar"><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
+        <h1> Escrever Aprender Ensinar</h1>
+      </div>
+    </div>
+
+    <div class="login">
+      <h1 class="title-welcome">Cadastre-se </h1>
+      <div class="user-options">
+        <button class="btn-noBg warning" @click="setUser('student')">Sou Estudante</button>
+        <button class="btn-noBg sucess" @click="setUser('teacher')">Sou Professor</button>
+      </div>
+      <div v-if="this.user == 'student'">
+        <studentSignup></studentSignup>
+      </div>
+      <div v-else-if="this.user == 'teacher'">
+        <teacherSignup></teacherSignup>
+      </div>
+      <div class="login-footer">
+        <a class="form-text" href="/login">Entrar</a> <br />
+      </div>
+    </div>
+  </div>
+</template>
+
 <script>
   import studentSignup from './student.signup'
   import teacherSignup from './teacher.signup'
@@ -21,38 +49,7 @@
     }
   }
 </script>
-<template>
-  <div class="login-wrapper">
 
-    <div class="logo">
-      <div class='center-trick'>  
-        <a href="#/entrar"><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
-        <h1> Escrever Aprender Ensinar</h1>
-      </div>
-    </div>
-
-    <div class="login">
-      
-      <h1 class="title-welcome">Cadastre-se </h1>
-      <div  class="user-options">
-        <button class="btn-noBg warning" @click="setUser('student')">Sou Estudante</button>
-        <button class="btn-noBg sucess" @click="setUser('teacher')">Sou Professor</button>
-      </div>
-
-      <div v-if="this.user == 'student'">
-          <studentSignup></studentSignup>
-      </div>
-      <div v-else-if="this.user == 'teacher'">
-          <teacherSignup></teacherSignup>
-      </div>
-      <div class="login-footer">
-        <a class="form-text" href="entrar">Entrar</a> <br />
-      </div>
-    </div>
-    
-  </div>
-  
-</template>
 <style scoped lang="sass">
   @import './../../assets/bases.sass'
 
@@ -82,7 +79,6 @@
     top: 50%;
     transform: translate(-50%, -50%);
     text-align: center
-
 
   .logo h1
     font-family: $title_font
