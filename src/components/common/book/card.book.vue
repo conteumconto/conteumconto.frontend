@@ -5,14 +5,14 @@
       <div class="book-l">
         <h1 class="book-title">{{this.book.title}}</h1>
         <div class="tags-wrapper">
-          <span v-for='tag in this.book.tags' class="book-tags">{{tag}}</span>
+          <span v-for='tag in this.book.tags' v-bind:key='tag' class="book-tags">{{tag}}</span>
         </div>
-        <button class="btn-noBg default" @click="details = true">Abrir Livro</button>
-        <a class="btn-noBg sucess" :href="this.book.newChapterUrl">Escrever</a>
+        <button class="btn-noBg default" @click="openBook">Abrir Livro</button>
+        <router-link class="btn-noBg sucess" :to="this.newChapterUrl">Escrever</router-link>
       </div>
       <div class='book-r'>
         <div class="image">
-          <img :src="this.photo.url" :alt="this.photo.name">
+          <img :src="this.book.photo">
         </div>
       </div>
     </div>
@@ -32,11 +32,7 @@
     data () {
       return {
         newChapterUrl: '',
-        details: false,
-        photo: {
-          name: 'Foto Padrão',
-          url: './static/img/kids1.jpg'
-        }
+        details: false
       }
     },
     props: ['book'],
@@ -45,8 +41,14 @@
         return (common.isEmptyArray(this.book.chapters))
       }
     },
-    created () {
-      if (!common.isEmpty(this.book.photo.url)) this.photo = this.book.photo
+    mounted () {
+      if (!common.isEmpty(this.book)) this.newChapterUrl = {name: 'write-new-book', params: {book_id: this.book._id}}
+    },
+    methods: {
+      openBook () {
+        this.$store.dispatch('setActualBook', this.book._id)
+        this.details = true
+      }
     }
   }
 </script>
