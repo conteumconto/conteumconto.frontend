@@ -3,7 +3,7 @@
     <div class="welcome">
       <h1 class="title-welcome">Olá Professor, seja bem vindo ao Projeto Conte um Conto!</h1>
       <div class="text">
-        <p class="content">Olá amigão, nós queremos te ajudar a escrever melhor. Esta é a página inicial e aqui fica os livros dos seus alunos! :D.</p>
+        <p class="content">Esta é a página inicial e aqui fica os livros dos seus alunos! :D.</p>
       </div>
     </div>
   </div>

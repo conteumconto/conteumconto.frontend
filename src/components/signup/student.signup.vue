@@ -36,9 +36,7 @@
             </div>
           </div>
           <button type="submit" class="btn btn-green"> CADASTRAR </button>
-          <md-snackbar :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
-            <span>{{situationText}}</span>
-          </md-snackbar>
+          <cucSnackbar :open="open"></cucSnackbar>
         </form>
       </div>
     </div>
@@ -46,8 +44,14 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   import loginTopnav from '../common/login.topnav'
   import Auth from '../../services/auth.service'
+  import common from '../../services/common.service'
+  import cucSnackbar from '../common/cuc.snackbar'
+  import Swal from '../../services/Swal.service'
+
+  const swal = new Swal()
 
   export default {
     name: 'student-signup',
@@ -66,38 +70,44 @@
           horizontal: 'right',
           duration: 5000
         },
-        situationText: '',
-        hidePassword: true
+        hidePassword: true,
+        open: new Vue(),
+        swalTimeout: 3000
       }
     },
     components: {
-      loginTopnav
+      loginTopnav,
+      cucSnackbar
     },
     methods: {
       onSubmit () {
-        let signup = Auth.signup(this, this.student, 'student')
-        let login = Auth.login(this, {login: this.student.login, password: this.student.password})
+        let signupPromise = Auth.signup(this, this.student, 'student')
+        let loginPromise = Auth.login(this, {login: this.student.login, password: this.student.password})
 
-        Promise.all([signup, login])
-          .then(response => {
-            this.openSnackBar('Cadastro realizado com sucesso!')
+        swal.loading('Estamos cadastrando a sua conta para registrar suas aventuras...', this.swalTimeout)
+
+        signupPromise
+          .then(response => loginPromise)
+          .then(user => {
             // After signup, login freshly registered user
-            const user = response[1]
-            this.$store.commit('LOAD_STUDENT_DATA', user)
-            this.$router.push({name: 'home-student'})
+            setTimeout(() => {
+              this.$store.commit('LOAD_STUDENT_DATA', user)
+              this.$router.push({name: 'home-student'})
+              swal.simpleSuccess('Sucesso!', 'Vamos começar a escrever suas aventuras?')
+            }, this.swalTimeout)
           })
           .catch(err => {
             console.error(err.response)
-            // @todo: isolate snackbar
-            if (err.response.data === 'duplicate_email') this.openSnackBar('Esse e-mail já foi cadastrado, escolha outro.')
+            swal.close()
+            if (common.isEmpty(err.response)) this.openSnackBar('O sistema está fora do ar. Tente novamente mais tarde!')
+            else if (err.response.data === 'duplicate_email') this.openSnackBar('Esse e-mail já foi cadastrado, escolha outro.')
             else if (err.response.data === 'duplicate_login') this.openSnackBar('O login escolhido já está em uso, escolha outro.')
-            else if (err.response.data === 'invalid_login_password') this.$router.push({name: login})
+            else if (err.response.data === 'invalid_login_password') this.$router.push({name: 'login'})
             else this.openSnackBar('Não foi possível cadastrar uma conta no momento. Tente novamente mais tarde!')
           })
       },
       openSnackBar (text) {
-        this.situationText = text
-        this.$refs.snackbar.open()
+        this.open.$emit('openCucSnackbar', { text })
       }
     }
   }

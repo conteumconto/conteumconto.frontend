@@ -5,7 +5,7 @@ import BookCase from '../components/bookcase/main.bookcase'
 import EditProfile from '../components/profile/edit.profile'
 import Login from '../components/login/main.login'
 import Forgot from '../components/login/forgot.login'
-import Write from '../components/write/main.write.vue'
+import Write from '../components/write/main.write'
 
 export const routes = [
     { path: '/home/student', alias: '/home/aluno', name: 'home-student', component: Home, meta: {requiresAuth: true} },
@@ -17,5 +17,5 @@ export const routes = [
     { path: '/forgot', alias: '/recuperar', name: 'forgot', component: Forgot },
     { path: '/write', alias: '/escrever', name: 'write', component: Write, meta: {requiresAuth: true} },
     { path: '/write/new/:book_id/', alias: '/escrever/novo/:book_id/', name: 'write-new-book', component: Write, meta: {requiresAuth: true} },
-    { path: '/write/new/:chapter_id/', alias: '/escrever/editar/:chapter_id/', name: 'write-new-chapter', component: Write, meta: {requiresAuth: true} }
+    { path: '/write/edit/:chapter_id/', alias: '/escrever/editar/:chapter_id/', name: 'write-existent-chapter', component: Write, meta: {requiresAuth: true} }
 ]

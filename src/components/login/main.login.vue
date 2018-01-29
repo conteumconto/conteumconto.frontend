@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrapper">
     <div class="logo">
-      <a href="#"><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
+      <a><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
       <h1> Escrever Aprender Ensinar</h1>
     </div>
     <div class="login">
@@ -22,24 +22,28 @@
             </div>
           </div>
           <button type="submit" class="btn btn-green"> ENTRAR </button>
-          <md-snackbar :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
-            <span>{{situationText}}</span>
-            <md-button class="md-accent" md-theme="light-blue" @click.native="$refs.snackbar.close()">OK</md-button>
-          </md-snackbar>
+          <cucSnackbar :open="open"></cucSnackbar>
         </form>
 
       </div>
       <div class="login-footer">
         <router-link class="form-text" :to="{name: 'signup'}">Cadastre-se</router-link> <br />
-        <!-- <a class="form-text" href="#/recuperar">Esqueceu sua senha?</a> -->
+        <!-- <router-link class="form-text" :to="{name: 'forgot'}">Esqueceu sua senha?</router-link> -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import Vue from 'vue'
   import loginTopnav from '../common/login.topnav'
   import Auth from '../../services/auth.service'
+  import ChapterService from '../../services/Chapter.service'
+  import common from '../../services/common.service'
+  import cucSnackbar from '../common/cuc.snackbar'
+  import Swal from '../../services/Swal.service'
+
+  const swal = new Swal()
 
   export default {
     name: 'login',
@@ -52,16 +56,20 @@
         isDanger: false,
         hidePassword: true,
         error: '',
-        snackBar: {
-          vertical: 'top',
-          horizontal: 'right',
-          duration: 10000
-        },
-        situationText: ''
+        open: new Vue(),
+        swalTimeout: 3000
       }
     },
     components: {
-      loginTopnav
+      loginTopnav,
+      cucSnackbar
+    },
+    mounted () {
+      if (!common.isEmpty(this.$router.history.current.query.expired)) {
+        setTimeout(() => {
+          swal.simpleInfo('Aviso!', 'Sua entrada nos nossos livros foi expirada. Entre novamente para continuarmos, ok? :)')
+        }, 1000)
+      }
     },
     methods: {
       onSubmit () {
@@ -69,24 +77,32 @@
           login: this.credentials.login,
           password: this.credentials.password
         }
+
+        swal.loading('Estamos habilitando suas novas aventuras...', this.swalTimeout)
+
         Auth.login(this, credentials)
           .then(user => {
+            user.books = ChapterService.addUrlToChapters(user.books)
             this.$store.commit('LOAD_STUDENT_DATA', user)
-            let userType = user.__t
-            if (userType === 'Student') this.$router.push({name: 'home-student'})
-            else if (userType === 'Teacher') this.$router.push({name: 'home-professor'})
+            const userType = user.__t
+            setTimeout(() => {
+              if (userType === 'Student') this.$router.push({name: 'home-student'})
+              else if (userType === 'Teacher') this.$router.push({name: 'home-professor'})
+              swal.close()
+            }, this.swalTimeout)
           })
           .catch(err => {
             console.error(err.response)
-            if (err.response.data === 'invalid_login_password') {
+            swal.close()
+            if (common.isEmpty(err.response)) this.openSnackBar('O sistema está fora do ar. Tente novamente mais tarde!')
+            else if (err.response.data === 'invalid_login_password') {
               this.openSnackBar('Usuário ou senha incorretos!')
               this.isDanger = true
             } else this.openSnackBar('Não foi possível entrar no sistema. Tente novamente mais tarde!')
           })
       },
       openSnackBar (text) {
-        this.situationText = text
-        this.$refs.snackbar.open()
+        this.open.$emit('openCucSnackbar', { text })
       }
     }
   }

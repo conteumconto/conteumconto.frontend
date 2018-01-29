@@ -11,7 +11,6 @@ export default {
   login (context, creds) {
     return cucHttp.login(creds)
       .then(response => {
-        console.log(response)
         // Checks if user's token is present
         if (!common.isEmpty(response.headers.authorization)) {
           localStorage.setItem('token', response.headers.authorization)

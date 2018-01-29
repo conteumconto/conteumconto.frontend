@@ -47,9 +47,7 @@
       list () {
         if (this.search) {
           return this.$store.getters.studentBooks.filter(book => book.title.match(this.search))
-        } else {
-          return this.$store.getters.studentBooks
-        }
+        } else return this.$store.getters.studentBooks
       }
     }
   }

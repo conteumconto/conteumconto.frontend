@@ -101,6 +101,18 @@ a
 .btn:hover 
   text-decoration: none
 
+.btn:hover:disabled
+  background: #ccc
+  box-shadow: none
+  color: #fff
+  pointer-events: none;
+
+.btn:disabled
+  box-shadow: none
+  background: #ccc
+  color: #fff
+  pointer-events: none;
+
 .btn-inverse
   box-shadow: none
   border: 3px solid #fff
@@ -111,6 +123,7 @@ a
   background: $red
   color: #fff
   transition: all .3s ease
+
 .btn-red:hover
   background: $red_dark
 
@@ -118,6 +131,7 @@ a
   color: $red
   transition: all .3s ease
   box-shadow: none
+
 .btn-red:hover
   background: $red_dark
 
@@ -133,7 +147,7 @@ a
   border: 1px solid $green
   color: $green
   transition: all .3s ease
-  
+ 
 .btn-green-outline:hover:not([disabled])
   background: $green_dark
   color: #fff

@@ -2,7 +2,7 @@
   <div class="login-wrapper">
     <div class="logo">
       <div class='center-trick'>  
-        <a href="/entrar"><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
+        <a><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
         <h1> Escrever Aprender Ensinar</h1>
       </div>
     </div>
@@ -20,7 +20,7 @@
         <teacherSignup></teacherSignup>
       </div>
       <div class="login-footer">
-        <a class="form-text" href="/login">Entrar</a> <br />
+        <router-link class="form-text" :to="{name: 'login'}">Entrar</router-link>
       </div>
     </div>
   </div>

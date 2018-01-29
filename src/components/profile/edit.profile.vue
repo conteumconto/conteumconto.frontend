@@ -26,10 +26,6 @@
           </div>
           <button type="button" @click="deleteProfile" class="btn btn-red-inverse">Deletar Conta</button>
           <button type="submit" class="btn btn-green confirm-btn"> SALVAR </button>
-          <md-snackbar :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
-            <span>{{situationText}}</span>
-            <md-button class="md-accent" md-theme="light-blue" @click.native="$refs.snackbar.close()">OK</md-button>
-          </md-snackbar>
         </form>
       </div>
     </div>
@@ -39,7 +35,11 @@
 <script>
   import topnav from '../common/main.topnav'
   import CucHttpService from '../../services/Cuc.Http.service'
+  import Auth from '../../services/auth.service'
+  import common from '../../services/common.service'
+  import Swal from '../../services/Swal.service'
 
+  const swal = new Swal()
   let cucHttp = new CucHttpService('conteumconto', null)
   
   export default {
@@ -52,83 +52,80 @@
         login: this.$store.getters.dataStudent.login,
         student: this.$store.getters.dataStudent,
         hidePassword: true,
-        snackBar: {
-          vertical: 'top',
-          horizontal: 'right',
-          duration: 10000
-        },
-        situationText: ''
+        swalTimeout: 2000
       }
     },
     methods: {
-      openSnackBar (text) {
-        this.situationText = text
-        this.$refs.snackbar.open()
+      redirectDelete () {
+        Auth.logout()
+        this.$router.push({name: 'login'})
       },
       onSubmit () {
-        let self = this
-        this.$swal({
-          title: 'Você tem certeza?',
-          text: 'Tem certeza que quer alterar as informações do seu perfil?',
-          type: 'warning',
-          showCloseButton: true,
-          showCancelButton: true,
-          confirmButtonText: 'Sim, tenho certeza',
-          cancelButtonText: 'Cancelar',
-          reverseButtons: true
-        })
-        .then(() => {
-          cucHttp.setAuthHeaders(localStorage.getItem('token'))
-          return cucHttp.editStudentProfile(self.student, {login: self.login})
+        swal.simpleConfirmation(
+          'Você tem certeza?',
+          'Tem certeza que quer alterar as informações do seu perfil?',
+          'Sim, tenho certeza',
+          'Cancelar')
+        .then(response => {
+          if (!common.isEmpty(response.value)) {
+            if (response.value === true) {
+              swal.loading('Estamos salvando suas novas informações...', this.swalTimeout)
+              cucHttp.setAuthHeaders(localStorage.getItem('token'))
+              return cucHttp.editStudentProfile(this.student, {login: this.login})
+            }
+          } else return response
         })
         .then(response => {
-          // Changes the localStorage to the new token
-          if (response.token !== undefined) {
-            localStorage.setItem('token', response.token)
+          if (common.isEmpty(response.dismiss)) {
+            setTimeout(() => {
+              this.$store.commit('LOAD_STUDENT_DATA', this.student)
+              swal.simpleSuccess('Alterado!', 'Sua conta foi alterada com sucesso!')
+            }, this.swalTimeout)
           }
-          self.$store.commit('LOAD_STUDENT_DATA', self.student)
-          self.$swal({
-            title: 'Alterado!',
-            text: 'Sua conta foi alterada com sucesso!',
-            type: 'success'
-          })
         })
         .catch(err => {
-          console.error(err)
-          if (err.body.error === 'Duplicate login') {
-            self.openSnackBar('Este login já está em uso!')
-            self.student = self.$store.getters.dataStudent
-          }
-          if (err.body.error === 'Duplicate email') {
-            self.openSnackBar('Este email já está em uso!')
-          }
+          console.error(err.response)
+          let errMsg = null
+          if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+          else if (err.response.data === 'duplicate_email') {
+            errMsg = 'Esse e-mail já foi cadastrado, escolha outro.'
+            this.student = this.$store.getters.dataStudent
+          } else if (err.response.data === 'duplicate_login') {
+            errMsg = 'O login escolhido já está em uso, escolha outro.'
+            this.student = this.$store.getters.dataStudent
+          } else errMsg = 'Não foi possível atualizar os seus dados. Tente novamente mais tarde!'
+          swal.simpleError('Erro!', errMsg)
         })
       },
       deleteProfile () {
-        let self = this
-        this.$swal({
-          title: 'Você tem certeza?',
-          text: 'Você não poderá recuperar sua conta após a confirmação!',
-          type: 'warning',
-          showCloseButton: true,
-          showCancelButton: true,
-          confirmButtonText: 'Sim, tenho certeza',
-          cancelButtonText: 'Cancelar',
-          reverseButtons: true
-        })
-        .then(() => {
-          cucHttp.setAuthHeaders(localStorage.getItem('token'))
-          return cucHttp.deleteStudentProfile({login: self.login})
+        swal.simpleConfirmation(
+          'Você tem certeza?',
+          'Você não poderá recuperar sua conta e seus livros após a confirmação!',
+          'Sim, tenho certeza',
+          'Cancelar')
+        .then(response => {
+          if (!common.isEmpty(response.value)) {
+            if (response.value === true) {
+              swal.loading('Estamos removendo a sua conta... :(', this.swalTimeout)
+              cucHttp.setAuthHeaders(localStorage.getItem('token'))
+              return cucHttp.deleteStudentProfile({login: this.login})
+            }
+          } else return response
         })
         .then(response => {
-          self.$swal({
-            title: 'Removido!',
-            text: 'Sua conta foi removida com sucesso!',
-            type: 'success',
-            onClose: location.href = '#/entrar'
-          })
+          if (common.isEmpty(response.dismiss)) {
+            setTimeout(() => {
+              swal.successWithRedirect('Removido!', 'Sua conta foi removida. Quem sabe um outro dia veremos as suas histórias?', this.redirectDelete)
+            }, this.swalTimeout)
+          }
         })
-        .catch(err => console.error(err))
+        .catch(err => {
+          console.error(err.response)
+          let errMsg = null
+          if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+          else errMsg = 'Não foi possível remover a sua conta. Tente novamente mais tarde!'
+          swal.simpleError('Erro!', errMsg)
+        })
       }
     }
   }
