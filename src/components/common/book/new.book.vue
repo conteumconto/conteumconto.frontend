@@ -35,11 +35,8 @@
                 <label for="bookNewPhoto" :disabled="isSaving" class="btn btn-green-outline">Inserir Foto</label>
                 <input type="file" id="bookNewPhoto" name="photos" :disabled="isSaving" @change="newPhoto($event.target.name, $event.target.files);" accept="image/*" class="input-file">
               </div>
-              <md-snackbar class="snackbar" :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
-                <span>{{situationText}}</span>
-                <md-button class="md-accent" md-theme="light-blue" @click.native="$refs.snackbar.close()">OK</md-button>
-              </md-snackbar>
-              <button class="btn btn-green" @click="save" > Salvar </button>
+              <cucSnackbar :open="open"></cucSnackbar>
+              <button class="btn btn-green" @click="save" :disabled="isSaving" > Salvar </button>
             </div>
           </div>
         </div>
@@ -49,10 +46,14 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   import common from '../../../services/common.service'
   import photoUpload from '../../../services/PhotoUpload.service'
   import CucHttpService from '../../../services/Cuc.Http.service'
+  import cucSnackbar from '../cuc.snackbar'
+  import Swal from '../../../services/Swal.service'
 
+  const swal = new Swal()
   let cucHttp = new CucHttpService('conteumconto', null)
 
   const STATUS_INITIAL = 0
@@ -72,13 +73,17 @@
           horizontal: 'right',
           duration: 5000
         },
-        situationText: '',
+        open: new Vue(),
+        swalTimeout: 3000,
         photo: {
           name: 'Foto Padrão',
-          url: './static/img/kids1.jpg'
+          url: '../../../../static/img/kids1.jpg'
         },
         uploadStatus: STATUS_INITIAL
       }
+    },
+    components: {
+      cucSnackbar
     },
     computed: {
       student_data () {
@@ -88,9 +93,6 @@
         return this.uploadStatus === STATUS_SAVING
       }
     },
-    created () {
-      this.$store.dispatch('loadStudentDataFromApi', this.student_data.login)
-    },
     methods: {
       save () {
         let newBook = {
@@ -98,21 +100,33 @@
           title: this.title,
           summary: this.summary,
           tags: this.tags,
-          photo: this.photo
+          photo: this.photo.url
         }
-        if (common.isEmpty(newBook.title)) {
-          this.openSnackBar('Escreva um título para seu livro!')
-        } else {
+        if (common.isEmpty(newBook.title)) this.openSnackBar('Escreva um título para seu livro!')
+        else if (common.isEmpty(newBook.summary)) this.openSnackBar('Escreva um resumo para o livro!')
+        else if (newBook.summary.length < 30) this.openSnackBar('O resumo deve ter no mínimo 30 caracteres!')
+        else {
+          this.$emit('close')
+          swal.loading('Estamos salvando o seu livro de aventuras...', this.swalTimeout)
+
           cucHttp.setAuthHeaders(localStorage.getItem('token'))
-          cucHttp.newBook(newBook, {studentLogin: this.student_data.login})
+          cucHttp.newBook(newBook)
             .then(response => {
-              if (response !== null) {
+              if (!common.isEmpty(response)) {
                 // reload the store with new book
-                this.$store.dispatch('loadBookDataFromApi', this.student_data.login)
-                this.$emit('close')
+                setTimeout(() => {
+                  this.$store.dispatch('storeNewBookData', response.data)
+                  swal.simpleSuccess('Adicionado!', 'Seu livro foi salvo com sucesso!')
+                }, this.swalTimeout)
               }
             })
-            .catch(err => console.error(err))
+            .catch(err => {
+              console.error(err.response)
+              let errMsg = null
+              if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+              else errMsg = 'Não foi possível criar um novo livro. Tente novamente mais tarde!'
+              swal.simpleError('Erro!', errMsg)
+            })
         }
       },
       newPhoto (fieldName, fileList) {
@@ -143,8 +157,7 @@
           })
       },
       openSnackBar (text) {
-        this.situationText = text
-        this.$refs.snackbar.open()
+        this.open.$emit('openCucSnackbar', { text })
       }
     }
   }
@@ -244,8 +257,8 @@
     -webkit-transform: scale(1.1)
     transform: scale(1.1)
 
-  .snackbar
-    z-index: 10000
+  .md-snackbar
+    z-index: 1000000
 
   .input-file
     display: none
