@@ -23,17 +23,17 @@
                     <md-table-body>
                       <md-table-row v-for="chapter in this.book.chapters" :key="chapter._id">
                         <md-table-cell>{{chapter.title}}</md-table-cell>
-                        <md-table-cell><a class="edit" :href="chapter.url"> <md-icon>edit</md-icon></a></md-table-cell>
+                        <md-table-cell><router-link class="edit" :to="chapter.url"> <md-icon>edit</md-icon></router-link></md-table-cell>
                         <md-table-cell><button class="edit" @click="removeChapter(chapter)"> <md-icon>delete</md-icon> </button></md-table-cell>
                       </md-table-row>
                     </md-table-body>
                   </md-table>
-                  <a class="btn-noBg sucess" :href="this.book.newChapterUrl" > Escrever </a>
+                  <router-link class="btn-noBg sucess" :to="this.newChapterUrl" > Escrever </router-link>
                 </div>
                 <div class="modal-item">
                   <div class="new-image">
                     <div class="image">
-                      <img :src="this.photo.url" :alt="this.photo.name">
+                      <img :src="this.book.photo">
                     </div>
                   </div>
                 </div>
@@ -57,14 +57,19 @@
                         <template scope="chip">{{ chip.value }}</template>
                       </md-chips>
                     </div>
-                    <button class="btn-noBg sucess" @click="saveChanges" > Salvar </button>
-                    <button class="btn-noBg danger"  @click="removeBook" > Apagar Livro </button>
                 </div>
 
                 <div class="modal-item">
                   <div class="new-image">
                     <div class="image">
-                      <img :src="this.photo.url" :alt="this.photo.name">
+                      <img :src="this.book.photo">
+                    </div>
+                  </div>
+                  <div class="buttons-details">
+                    <!-- <button class="btn btn-green-outline" > Alterar Foto </button> -->
+                    <div>
+                      <button class="btn btn-green" @click="saveChanges" > Salvar </button>
+                      <button class="btn btn-red" @click="removeBook" > Apagar Livro </button>
                     </div>
                   </div>
                 </div>
@@ -75,13 +80,18 @@
         </div>
       </div>
     </transition>
+    <cucSnackbar :open="open"></cucSnackbar>
   </div>
 </template>
 
 <script>
+  import Vue from 'vue'
   import common from '../../../services/common.service'
   import CucHttpService from '../../../services/Cuc.Http.service'
+  import cucSnackbar from '../cuc.snackbar'
+  import Swal from '../../../services/Swal.service'
 
+  const swal = new Swal()
   let cucHttp = new CucHttpService('conteumconto', null)
 
   export default {
@@ -94,89 +104,127 @@
         edit: false,
         photo: {
           name: 'Foto Padrão',
-          url: './static/img/kids1.jpg'
-        }
+          url: '../../../../static/img/kids1.jpg'
+        },
+        newChapterUrl: '',
+        open: new Vue(),
+        swalTimeout: 3000
       }
+    },
+    components: {
+      cucSnackbar
     },
     props: ['book'],
     mounted () {
       this.title = this.book.title
       this.summary = this.book.summary
       this.tags = this.book.tags
+      this.newChapterUrl = {name: 'write-new-book', params: {book_id: this.book._id}}
     },
     created () {
       if (!common.isEmpty(this.book.photo.url)) this.photo = this.book.photo
     },
     methods: {
       saveChanges () {
-        let self = this
         let editBook = {
           title: this.title,
           summary: this.summary,
           tags: this.tags,
-          photo: this.photo
+          photo: this.book.photo
         }
-        cucHttp.setAuthHeaders(localStorage.getItem('token'))
-        cucHttp.editBook(editBook, {bookId: self.book._id})
-          .then(response => {
-            if (response !== null) {
-              // reload the store with new book
-              this.$store.dispatch('loadBookDataFromApi', self.$store.getters.dataStudent.login)
-              this.$emit('close')
-            }
-          })
-          .catch(err => console.error(err))
+
+        if (common.isEmpty(editBook.title)) this.openSnackBar('Escreva um título para seu livro!')
+        else if (common.isEmpty(editBook.summary)) this.openSnackBar('Escreva um resumo para o livro!')
+        else if (editBook.summary.length < 30) this.openSnackBar('O resumo deve ter no mínimo 30 caracteres!')
+        else {
+          this.$emit('close')
+          swal.loading('Estamos atualizando o seu livro...', this.swalTimeout)
+
+          cucHttp.setAuthHeaders(localStorage.getItem('token'))
+          cucHttp.editBook(editBook, {bookId: this.book._id})
+            .then(response => {
+              setTimeout(() => {
+                this.$store.dispatch('updateBookData', response.data)
+                this.$emit('close')
+                swal.simpleSuccess('Adicionado!', 'Seu livro foi atualizado com sucesso!')
+              }, this.swalTimeout)
+            })
+            .catch(err => {
+              console.error(err.response)
+              let errMsg = null
+              if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+              else errMsg = 'Não foi possível atualizar esse livro. Tente novamente mais tarde!'
+              swal.simpleError('Erro!', errMsg)
+            })
+        }
       },
       removeBook () {
         this.$emit('close')
-        let self = this
-        this.$swal({
-          title: 'Você tem certeza?',
-          text: 'Este livro deixará de existir após a confirmação!',
-          type: 'warning',
-          showCloseButton: true,
-          showCancelButton: true,
-          confirmButtonText: 'Sim, excluir este livro',
-          cancelButtonText: 'Cancelar',
-          reverseButtons: true
-        })
-        .then(() => {
-          cucHttp.setAuthHeaders(localStorage.getItem('token'))
-          return cucHttp.deleteBook({bookId: self.book._id})
+        swal.simpleConfirmation(
+          'Você tem certeza?',
+          'Esse livro deixará de existir após a confirmação!',
+          'Sim, excluir esse livro',
+          'Cancelar')
+        .then(response => {
+          if (!common.isEmpty(response.value)) {
+            if (response.value === true) {
+              swal.loading('Estamos deletando o seu livro...', this.swalTimeout)
+              cucHttp.setAuthHeaders(localStorage.getItem('token'))
+              return cucHttp.deleteBook({bookId: this.book._id})
+            }
+          } else return response
         })
         .then(response => {
-          if (response !== null) {
-            // reload the store with new book
-            self.$store.dispatch('loadBookDataFromApi', self.$store.getters.dataStudent.login)
+          if (common.isEmpty(response.dismiss)) {
+            setTimeout(() => {
+              response.data.deleted = true
+              this.$store.dispatch('updateBookData', response.data)
+              swal.simpleSuccess('Sucesso!', 'Seu livro foi removido com sucesso!')
+            }, this.swalTimeout)
           }
         })
-        .catch(err => console.error(err))
+        .catch(err => {
+          console.error(err.response)
+          let errMsg = null
+          if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+          else errMsg = 'Não foi possível remover esse livro. Tente novamente mais tarde!'
+          swal.simpleError('Erro!', errMsg)
+        })
       },
       removeChapter (chapter) {
         this.$emit('close')
-        let self = this
-        this.$swal({
-          title: 'Você tem certeza?',
-          text: 'Este capítulo deixará de existir após a confirmação!',
-          type: 'warning',
-          showCloseButton: true,
-          showCancelButton: true,
-          confirmButtonText: 'Sim, excluir este capítulo',
-          cancelButtonText: 'Cancelar',
-          reverseButtons: true
-        })
-        .then(() => {
-          cucHttp.setAuthHeaders(localStorage.getItem('token'))
-          return cucHttp.deleteChapter({chapterId: chapter._id})
-        })
+        swal.simpleConfirmation(
+          'Você tem certeza?',
+          'Esse capítulo deixará de existir após a confirmação!',
+          'Sim, excluir esse capítulo',
+          'Cancelar')
         .then(response => {
-          if (response !== null) {
-            self.$nextTick(() => {
-              self.$store.dispatch('loadBookDataFromApi', self.$store.getters.dataStudent.login)
-            })
+          if (!common.isEmpty(response.value)) {
+            if (response.value === true) {
+              swal.loading('Estamos deletando o seu capítulo...', this.swalTimeout)
+              cucHttp.setAuthHeaders(localStorage.getItem('token'))
+              return cucHttp.deleteChapter({chapterId: chapter._id, bookId: this.$store.getters.actualBook})
+            }
           }
         })
-        .catch(err => console.error(err))
+        .then(response => {
+          setTimeout(() => {
+            swal.simpleSuccess('Sucesso!', 'O capítulo foi removido com sucesso!')
+            response.data.deleted = true
+            this.$store.dispatch('updateChapterData', response.data)
+            this.$router.push({name: 'books'})
+          }, this.swalTimeout)
+        })
+        .catch(err => {
+          console.error(err.response)
+          let errMsg = null
+          if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+          else errMsg = 'Não foi possível remover esse capítulo. Tente novamente mais tarde!'
+          swal.simpleError('Erro!', errMsg)
+        })
+      },
+      openSnackBar (text) {
+        this.open.$emit('openCucSnackbar', { text })
       }
     }
   }
@@ -227,16 +275,26 @@
     display: flex
     justify-content: space-between
     aling-items: center
+  
+  .md-tabs .md-tab
+    padding: 0
 
   .modal-item
     flex: 1
-    margin: 1rem 1.5rem
+    margin: 0 0 0 1.5em
+  
+  .buttons-details
+    text-align: center
+    margin-bottom: 1em
+    .btn 
+      padding: .7em
+      margin: .5em
 
   .form-group
     margin: 1rem
 
   .new-image
-    margin: 1.2rem
+    margin: 0
     display: flex
     justify-content: center
     align-items: center
