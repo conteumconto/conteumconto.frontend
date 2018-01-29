@@ -1,6 +1,35 @@
+<template>
+  <div class="login-wrapper">
+    <div class="logo">
+      <a><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
+      <h1> Escrever Aprender Ensinar</h1>
+    </div>
+    <div class="login">
+      <h1 class="title-welcome">Recuperar Senha </h1>
+      <div class="container">
+        <form @submit="onSubmit" onsubmit="return false">
+          <div class="form-group">
+            <div class="form-text">EMAIL</div>
+            <input required type="email"  name="email" placeholder="Digite seu email">
+          </div>
+          <button type="submit" class="btn btn-green"> Enviar </button>
+          <cucSnackbar :open="open"></cucSnackbar>
+        </form>
+      </div>
+      <div class="login-footer">
+        <router-link class="form-text" :to="{name: 'signup'}">Cadastre-se</router-link> <br />
+        <router-link class="form-text" :to="{name: 'login'}">Entre</router-link>
+      </div>
+    </div>
+  </div>
+  
+</template>
+
 <script>
+  import Vue from 'vue'
   import loginTopnav from '../common/login.topnav'
   import Auth from '../../services/auth.service'
+  import cucSnackbar from '../common/cuc.snackbar'
 
   export default {
     name: 'forgot',
@@ -18,11 +47,12 @@
           horizontal: 'right',
           duration: 10000
         },
-        situationText: ''
+        open: new Vue()
       }
     },
     components: {
-      loginTopnav
+      loginTopnav,
+      cucSnackbar
     },
     methods: {
       onSubmit () {
@@ -33,44 +63,12 @@
         Auth.login(this, credentials)
       },
       openSnackBar (text) {
-        this.situationText = text
-        this.$refs.snackbar.open()
+        this.open.$emit('openCucSnackbar', { text })
       }
     }
   }
 </script>
-<template>
-  <div class="login-wrapper">
-    <div class="logo">
-      <a href="#"><img src="../../assets/img/logo.png" height='64' width='261' alt="logo" /></a>
-      <h1> Escrever Aprender Ensinar</h1>
-    </div>
 
-    <div class="login">
-      <h1 class="title-welcome">Recuperar Senha </h1>
-      <div class="container">
-        <form @submit="onSubmit" onsubmit="return false">
-          <div class="form-group">
-            <div class="form-text">EMAIL</div>
-            <input required type="email"  name="email" placeholder="Digite seu email">
-          </div>
-          <button type="submit" class="btn btn-green"> Enviar </button>
-          <md-snackbar :md-position="snackBar.vertical + ' ' + snackBar.horizontal" ref="snackbar" :md-duration="snackBar.duration">
-            <span>{{situationText}}</span>
-            <md-button class="md-accent" md-theme="light-blue" @click.native="$refs.snackbar.close()">OK</md-button>
-          </md-snackbar>
-        </form>
-        
-      </div>
-      <div class="login-footer">
-        <a class="form-text" href="#/cadastrar">cadastre-se</a> <br />
-        <a class="form-text" href="#/entrar">Entre</a>
-      </div>
-    </div>
-    
-  </div>
-  
-</template>
 <style scoped lang="sass">
   @import './../../assets/bases.sass'
 
