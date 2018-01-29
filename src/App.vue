@@ -32,4 +32,7 @@
   .modal-leave-active .modal-container
     -webkit-transform: scale(1.1)
     transform: scale(1.1)
+
+  html.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown), body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown)
+    height: 100% !important
 </style>
