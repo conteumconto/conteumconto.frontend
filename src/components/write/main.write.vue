@@ -2,10 +2,10 @@
   <div>
     <div class="topnav">
       <div class="control-menu-wrapper">
-        <a class="control-menu-wrapper--item hover" href="/#/meusLivros">
+        <router-link class="control-menu-wrapper--item hover" :to="{name: 'books'}">
           <i class="fa fa-arrow-left fa-2x" aria-hidden="true"></i>
           <label class='item-label'>Voltar</label>
-        </a>
+        </router-link>
 
         <div class="control-menu-wrapper--item">
           <div class="control-menu-wrapper--item-i hover" @click="focus">
@@ -44,10 +44,10 @@
     <div class='title-wrapper'>
       <div class="title" ref="active" placeholder="Clique e digite o Título" :contenteditable="editable" v-on:keyup.enter="getText" v-on:click="clickHandler">
       </div>
-      <a class='control-menu-wrapper--item-i done' @click='saveOption()' href="/#/meusLivros" >
+      <div class='control-menu-wrapper--item-i done hover' @click='saveOption()' >
         <i class="fa fa-check fa-2x" aria-hidden="true"></i>
         <label class='item-label'>Acabei</label>
-      </a>
+      </div>
     </div>
 
     <div class="editor-content" >
@@ -66,8 +66,12 @@
 </template>
 
 <script>
+  import ChapterService from '../../services/Chapter.service'
+  import common from '../../services/common.service'
   import CucHttpService from '../../services/Cuc.Http.service'
+  import Swal from '../../services/Swal.service'
 
+  const swal = new Swal()
   let cucHttp = new CucHttpService('conteumconto', null)
 
   export default {
@@ -77,17 +81,18 @@
         title: '',
         chapterText: '',
         editable: true,
-        image: ''
+        image: '',
+        swalTimeout: 3000
       }
     },
     mounted () {
       // load the write initial configs
-      this.turnOnDesingMode()
-      this.loadExitingText()
+      this.turnOnDesignMode()
+      if (this.$router.history.current.name === 'write-existent-chapter') this.loadExitingText()
     },
     methods: {
       focus () {
-        this.turnOnDesingMode()
+        this.turnOnDesignMode()
         this.$refs.editor_text.contentDocument.body.focus()
       },
       execCmm (cmm, value) {
@@ -97,13 +102,13 @@
         // Execute commands <b> <aling>, etc..
         this.$refs.editor_text.contentDocument.execCommand(cmm, false, value)
       },
-      turnOnDesingMode () {
-        // set the iframe in desing mode on component DOM Load
+      turnOnDesignMode () {
+        // set the iframe in design mode on component DOM Load
         this.$refs.editor_text.contentDocument.designMode = 'On'
 
         // Load css to write iframe - Dont work properly in firefox
         var cssLink = document.createElement('link')
-        cssLink.href = 'static/style.css'
+        cssLink.href = '../../../static/style.css'
         cssLink.rel = 'stylesheet'
         cssLink.type = 'text/css'
         this.$refs.editor_text.contentDocument.head.appendChild(cssLink)
@@ -117,21 +122,6 @@
         // Title clean click function
         this.$refs.active.innerHTML = ''
         this.editable = true
-      },
-      saveChapter () {
-        // Title get text function
-        this.editable = !this.editable
-        this.title = this.$refs.active.textContent
-        this.chapterText = this.$refs.editor_text.contentDocument.body.innerHTML
-        this.title = this.$refs.active.innerHTML = this.title
-        let newChap = {
-          title: this.title,
-          chapterText: this.chapterText
-        }
-        cucHttp.setAuthHeaders(localStorage.getItem('token'))
-        cucHttp.newChapter(newChap, {bookId: this.$route.params.book_id})
-          .then(response => {})
-          .catch((err) => console.error(err))
       },
       addImage () {
         // Emulates the click to ref='file' input
@@ -150,15 +140,49 @@
         reader.readAsDataURL(files[0])
       },
       loadExitingText () {
+        try {
+          const chapter = ChapterService.getChapterData(this.$store.getters.actualBook, this.$route.params.chapter_id)
+          this.$refs.active.textContent = chapter.title
+          this.$refs.editor_text.contentDocument.body.innerHTML = chapter.chapterText
+        } catch (err) {
+          console.error(err.message)
+          if (err.message === 'chapter_not_found') {
+            swal.simpleError('Erro!', 'Capítulo não encontrado para edição. Tente novamente mais tarde!')
+            this.$router.push({name: 'books'})
+          }
+        }
+      },
+      saveChapter () {
+        // Title get text function
+        this.editable = !this.editable
+        this.title = this.$refs.active.textContent
+        this.chapterText = this.$refs.editor_text.contentDocument.body.innerHTML
+        this.title = this.$refs.active.innerHTML = this.title
+        let newChap = {
+          title: this.title,
+          chapterText: this.chapterText
+        }
+        swal.loading('Estamos salvando seu novo capítulo...', this.swalTimeout)
         cucHttp.setAuthHeaders(localStorage.getItem('token'))
-        cucHttp.getBookChapters({bookId: this.$route.params.book_id})
+        cucHttp.newChapter(newChap, {bookId: this.$route.params.book_id})
           .then(response => {
-            if (response !== null) {
-              this.$refs.active.textContent = response.title
-              this.$refs.editor_text.contentDocument.body.innerHTML = response.chapterText
+            try {
+              setTimeout(() => {
+                this.$store.dispatch('storeNewChapterData', response.data)
+                this.$router.push({name: 'books'})
+                swal.simpleSuccess('Adicionado!', 'O novo capítulo foi salvo com sucesso!')
+              }, this.swalTimeout)
+            } catch (err) {
+              throw new Error(err.message)
             }
           })
-          .catch(err => console.error(err))
+          .catch(err => {
+            console.error(err.response)
+            let errMsg = null
+            if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+            else errMsg = 'Houve um probleminha para guardar o capítulo no seu livro. Entre novamente para ver o mesmo, ok?'
+            swal.simpleError('Erro!', errMsg)
+          })
       },
       updateChapter () {
         this.editable = !this.editable
@@ -169,16 +193,35 @@
           title: this.title,
           chapterText: this.chapterText
         }
+        swal.loading('Estamos atualizando esse capítulo...', this.swalTimeout)
         cucHttp.setAuthHeaders(localStorage.getItem('token'))
-        cucHttp.editChapter(updatedChapter, {bookdId: this.$route.params.book_id})
-          .then(response => {})
-          .catch(err => console.error(err))
+        cucHttp.editChapter(updatedChapter, {chapterId: this.$route.params.chapter_id})
+          .then(response => {
+            try {
+              setTimeout(() => {
+                this.$store.dispatch('updateChapterData', response.data)
+                this.$router.push({name: 'books'})
+                swal.simpleSuccess('Atualizado!', 'O capítulo foi atualizado com sucesso!')
+              }, this.swalTimeout)
+            } catch (err) {
+              throw new Error(err.message)
+            }
+          })
+          .catch(err => {
+            console.error(err.response)
+            let errMsg = null
+            if (common.isEmpty(err.response)) errMsg = 'O sistema está fora do ar. Tente novamente mais tarde!'
+            else errMsg = 'Houve um probleminha para atualizar o capítulo do seu livro. Entre novamente para ver o mesmo, ok?'
+            swal.simpleError('Erro!', errMsg)
+          })
       },
       saveOption () {
-        this.$route.path.split('/').filter((item) => {
-          if (item === 'editar') this.updateChapter()
-          else if (item === 'novo') this.saveChapter()
-        })
+        if (this.$router.history.current.name === 'write-existent-chapter') this.updateChapter()
+        else if (this.$router.history.current.name === 'write-new-book') this.saveChapter()
+        // this.$route.path.split('/').filter((item) => {
+        //   if (item === 'editar') this.updateChapter()
+        //   else if (item === 'novo') this.saveChapter()
+        // })
       }
     }
   }
@@ -219,7 +262,7 @@
 
   .title
     @extend .title-large
-    color: $orange_base
+    color: $blue_dark
     flex: 1 0 0
     /*hides ugly unneccessary scrollbars*/
     overflow: hidden
@@ -232,7 +275,7 @@
 
   .title:empty:before
     content: attr(placeholder)
-    color: $orange_lightier
+    color: $blue_lightier
     opacity: .7
 
   .control-menu-wrapper
@@ -276,9 +319,9 @@
   .done
     cursor: pointer
     font-size: 2rem
-    color: $green
+    color: $blue_lightier
     trasition: all .4s ease
 
   .done:hover
-    color: $green-dark
+    color: $blue_dark
 </style>
