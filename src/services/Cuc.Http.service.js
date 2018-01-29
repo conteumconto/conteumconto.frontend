@@ -1,6 +1,23 @@
 import HttpService from './Http.service'
+import Auth from './auth.service'
 
 export default class CucHttpService extends HttpService {
+
+  constructor (api, headers) {
+    super(api, headers)
+    this._client.interceptors.response
+      .use(
+        response => {
+          return Promise.resolve(response)
+        },
+        err => {
+          if (err.response.data === 'Unauthorized') {
+            Auth.logout()
+            window.location.href = '/login?expired=true'
+          } else return Promise.reject(err)
+        }
+      )
+  }
 
   // *************** AUTHENTICATION ENDPOINTS *************** //
 
@@ -17,7 +34,7 @@ export default class CucHttpService extends HttpService {
     return this._client.put(`/student/${params.login}`, body)
   }
   deleteStudentProfile (params) {
-    return this._client.delete(`/student/${params.login}`)
+    return this._client.delete(`/student/login/${params.login}`)
   }
   getStudent (params) {
     return this._client.get(`/student/${params.login}`)
@@ -31,14 +48,14 @@ export default class CucHttpService extends HttpService {
 
   // ******************* BOOK ENDPOINTS ******************* //
 
-  newBook (body, params) {
-    return this._client.post(`/book/${params.studentLogin}`, body)
+  newBook (body) {
+    return this._client.post('/book', body)
   }
   editBook (body, params) {
-    return this._client.put(`/book/id/${params.bookId}`, body)
+    return this._client.put(`/book/${params.bookId}`, body)
   }
   deleteBook (params) {
-    return this._client.delete(`/book/id/${params.bookId}`)
+    return this._client.delete(`/book/${params.bookId}`)
   }
   getStudentBooks (params) {
     return this._client.get(`/book/${params.userLogin}`)
@@ -51,13 +68,13 @@ export default class CucHttpService extends HttpService {
     return this._client.post(`/chapter/${params.bookId}`, body)
   }
   editChapter (body, params) {
-    return this._client.put(`/chapter/id/${params.bookId}`, body)
+    return this._client.put(`/chapter/${params.chapterId}`, body)
   }
   deleteChapter (params) {
-    return this._client.delete(`/chapter/id/${params.chapterId}`)
+    return this._client.delete(`/chapter/${params.bookId}/${params.chapterId}`)
   }
   // @todo: Get single chapter
   getBookChapters (params) {
-    return this._client.get(`/chapter/id/${params.bookId}`)
+    return this._client.get(`/chapter/${params.bookId}`)
   }
 }
